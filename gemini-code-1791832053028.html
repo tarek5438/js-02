@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار JavaScript: معالجة الأخطاء والبرمجة كائنية التوجه (20 سؤالاً)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #0f172a;
+            --accent: #f59e0b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 28px 20px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.25);
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 1.7rem;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            direction: ltr;
+        }
+
+        .stats-bar {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: block;
+        }
+
+        .stat-val {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-val.high {
+            color: var(--accent);
+        }
+
+        .btn-index {
+            background: #eff6ff;
+            color: var(--primary);
+            border: 2px solid #bfdbfe;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-index:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s ease;
+        }
+
+        .q-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 10px 20px -3px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .q-badge {
+            background: #eff6ff;
+            color: var(--primary);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .q-text-ar {
+            font-size: 1.25rem;
+            font-weight: 800;
+            line-height: 1.8;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .q-text-en {
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #475569;
+            direction: ltr;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            border-left: 3px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .opt-btn {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: right;
+        }
+
+        .opt-btn:hover:not(:disabled) {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            transform: translateX(-4px);
+        }
+
+        .opt-btn.correct {
+            background: #dcfce7 !important;
+            border-color: var(--success) !important;
+        }
+
+        .opt-btn.wrong {
+            background: #fee2e2 !important;
+            border-color: var(--danger) !important;
+        }
+
+        .opt-ar {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .opt-en {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #64748b;
+            direction: ltr;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .opt-btn.correct .opt-ar, .opt-btn.correct .opt-en {
+            color: #15803d !important;
+        }
+
+        .opt-btn.wrong .opt-ar, .opt-btn.wrong .opt-en {
+            color: #991b1b !important;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 0.98rem;
+            line-height: 1.7;
+            display: none;
+            background: #f1f5f9;
+            border-right: 5px solid var(--primary);
+        }
+
+        .exp-en {
+            direction: ltr;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            color: #334155;
+            margin-top: 6px;
+            font-size: 0.92rem;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+        }
+
+        .btn-nav {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-nav:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-nav:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 750px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 26px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            animation: popIn 0.25s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 14px; height: 14px; border-radius: 4px; }
+
+        .grid-index {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .index-pill {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            padding: 10px 4px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: #334155;
+        }
+
+        .index-pill:hover {
+            border-color: var(--primary);
+            background: #eff6ff;
+            transform: translateY(-2px);
+        }
+
+        .index-pill.active {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
+            font-weight: 900;
+        }
+
+        .index-pill.solved-correct {
+            background: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #15803d !important;
+        }
+
+        .index-pill.solved-wrong {
+            background: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #b91c1c !important;
+        }
+
+        .results-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .trophy { font-size: 4rem; margin-bottom: 15px; }
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #eff6ff;
+            border: 6px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+        }
+
+        .score-num { font-size: 2.4rem; font-weight: 900; color: var(--primary); }
+        .btn-restart {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 14px 34px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>اختبار JavaScript: معالجة الأخطاء والبرمجة كائنية التوجه (20 سؤالاً)</h1>
+        <p>Bilingual Quiz: Error Handling (try...catch) & Object-Oriented Programming (OOP)</p>
+    </header>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-label">رقم السؤال / Question</span>
+            <div><span class="stat-val" id="qCurrent">1</span> / 20</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">أول محاولة / 1st Score 🎯</span>
+            <span class="stat-val" style="color: #6366f1;" id="firstScore">--</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">الدرجة الحالية / Score</span>
+            <span class="stat-val" id="score">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">أعلى نتيجة / High Score 🏆</span>
+            <span class="stat-val high" id="highScore">0</span>
+        </div>
+        <div>
+            <button class="btn-index" onclick="openIndexModal()">
+                <span>📑</span>
+                <span>فهرس الأسئلة (1-20)</span>
+            </button>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <div class="q-card" id="quizCard">
+        <div class="q-header">
+            <span class="q-badge" id="topicBadge">Topic</span>
+            <span style="color: var(--text-muted); font-size: 0.9rem;" id="qStatusIndicator">لم يُجب بعد / Not answered</span>
+        </div>
+        
+        <div class="q-text-ar" id="questionTextAr">جاري تحميل السؤال...</div>
+        <div class="q-text-en" id="questionTextEn">Loading question...</div>
+        
+        <div class="options-list" id="optionsContainer"></div>
+        <div class="explanation" id="explanationText"></div>
+
+        <div class="actions">
+            <button class="btn-nav" id="prevBtn" onclick="prevQuestion()" disabled>➡️ السابق / Prev</button>
+            <button class="btn-nav" id="nextBtn" onclick="nextQuestion()">التالي / Next ⬅️</button>
+        </div>
+    </div>
+
+    <div class="results-card" id="resultsCard">
+        <div class="trophy" id="trophyIcon">🎉</div>
+        <h2 id="resultMsg" style="font-size: 1.8rem; margin-bottom: 8px;">أحسنت صنعاً!</h2>
+        <p id="resultSubtitle" style="color: var(--text-muted);">أتممت جميع الأسئلة الـ 20 بنجاح!</p>
+        
+        <div class="score-circle">
+            <div class="score-num" id="finalScore">0</div>
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">/ 20</span>
+        </div>
+
+        <p id="highScoreNotice" style="font-weight: 700; font-size: 1.1rem; color: var(--accent); margin-top: 10px;"></p>
+        <button class="btn-restart" onclick="restartQuiz()">إعادة الاختبار من البداية 🔄</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="indexModal" onclick="closeIndexModalOnOutside(event)">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📑 فهرس أسئلة الاختبار (Question Index)</h3>
+            <button class="close-btn" onclick="closeIndexModal()">✕</button>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background: #22c55e;"></div><span>إجابة صحيحة</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #ef4444;"></div><span>إجابة خاطئة</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #1e3a8a;"></div><span>السؤال المفتوح حالياً</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #e2e8f0; border: 1px solid #cbd5e1;"></div><span>لم يُحل بعد</span></div>
+        </div>
+
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">انقر على أي رقم سؤال للانتقال إليه مباشرة:</p>
+        <div class="grid-index" id="gridIndexContainer"></div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            topic: "معالجة الأخطاء / Error Handling",
+            ar_q: "ما فائدة استخدام try...catch عند التعامل مع المتغيرات غير المعرفة مثل mazen؟",
+            en_q: "What is the benefit of using try...catch when handling undefined variables like mazen?",
+            options: [
+                { ar: "تسريع تنفيذ قراءة الأوامر البرمجية", en: "Accelerating execution of code statements" },
+                { ar: "تفادي توقف البرنامج والتعامل مع الخطأ", en: "Preventing crashes and handling runtime errors" },
+                { ar: "إعادة تعريف المتغيرات تلقائياً في الذاكرة", en: "Automatically redefining variables in memory" },
+                { ar: "حذف المتغيرات الخاطئة من النطاق العام", en: "Removing invalid variables from global scope" }
+            ],
+            correct: 1,
+            exp_ar: "تمنع كتلة try...catch البرنامج من التوقف المفاجئ عند حدوث خطأ، وتسمح للمطور بالتعامل معه واستكمال الكود بسلاسة.",
+            exp_en: "try...catch catches runtime errors and prevents the entire script from halting execution."
+        },
+        {
+            topic: "إنشاء واستدعاء الأخطاء / Throwing Errors",
+            ar_q: "في دالة calculator، متى يتم تنفيذ جملة throw new Error(...)؟",
+            en_q: "In the calculator function, when is throw new Error(...) executed?",
+            options: [
+                { ar: "إذا كانت نتيجة الجمع رقماً موجباً", en: "If the calculated sum is a positive number" },
+                { ar: "إذا أدخل المستخدم قيمة نصية غير عددية", en: "If the user enters a non-numeric string value" },
+                { ar: "إذا ألغى المستخدم نافذة الإدخال فوراً", en: "If the user cancels the input prompt dialog" },
+                { ar: "إذا قام المستخدم بجمع أعداد صحيحة سالبة", en: "If the user adds negative integer numbers" }
+            ],
+            correct: 1,
+            exp_ar: "يتم رمي استثناء مخصص عندما يفشل التحقق من الأرقام بواسطة شرط isNaN(number1) || isNaN(number2).",
+            exp_en: "An error is thrown if either input fails numeric parsing, satisfying isNaN conditions."
+        },
+        {
+            topic: "الدوال والنتائج / Function Return Values",
+            ar_q: "ما القيمة التي تعيدها دالة calculator عند حدوث استثناء ودخول كتلة catch دون تحديد return؟",
+            en_q: "What does the calculator function return when an exception triggers the catch block without a return?",
+            options: [
+                { ar: "قيمة الصفر الرقمية", en: "Numeric zero value" },
+                { ar: "القيمة المنطقية خطأ", en: "Boolean false value" },
+                { ar: "قيمة غير معرف بالكامل", en: "Primitive undefined value" },
+                { ar: "قيمة فارغ الصريحة", en: "Explicit null value" }
+            ],
+            correct: 2,
+            exp_ar: "في JavaScript، إذا لم تنفذ الدالة أمر return صريح بعد التقاط الخطأ في catch، فإنها تعيد تلقائياً القيمة undefined.",
+            exp_en: "JavaScript functions without an explicit return statement implicitly return undefined."
+        },
+        {
+            topic: "فحص الأرقام / Number Validation",
+            ar_q: "ما وظيفة الدالة isNaN() المستخدمة في كود الآلة الحاسبة؟",
+            en_q: "What is the purpose of the isNaN() function used in the calculator script?",
+            options: [
+                { ar: "تحويل النصوص إلى أعداد كسرية", en: "Converting strings into decimal floats" },
+                { ar: "حذف القيم الصفرية من الحسابات", en: "Removing zero values from calculations" },
+                { ar: "فحص ما إذا كانت القيمة غير عددية", en: "Checking if a value is not a valid number" },
+                { ar: "حساب الطول النصي للقيم المدخلة", en: "Measuring character lengths of input values" }
+            ],
+            correct: 2,
+            exp_ar: "تتحقق الدالة isNaN() مما إذا كانت القيمة المحولة ليست رقماً صالحاً (Not-a-Number).",
+            exp_en: "isNaN() determines whether an evaluated value evaluates to Not-a-Number."
+        },
+        {
+            topic: "استدعاء توابع الكائنات / Object Methods",
+            ar_q: "كيف يتم استدعاء التابع grades المعرف داخل الكائن students؟",
+            en_q: "How is the grades method inside the students object invoked?",
+            options: [
+                { ar: "استدعاء students.grades()", en: "Calling students.grades()" },
+                { ar: "استدعاء grades.students()", en: "Calling grades.students()" },
+                { ar: "استدعاء call.students()", en: "Calling call.students()" },
+                { ar: "استدعاء grades()->students", en: "Calling grades()->students" }
+            ],
+            correct: 0,
+            exp_ar: "يتم استدعاء دوال وتوابع الكائنات باستخدام عامل النقطة متبوعاً بقوسي الاستدعاء: objectName.methodName().",
+            exp_en: "Object methods are executed using dot notation followed by parentheses: objectName.methodName()."
+        },
+        {
+            topic: "الكلمة المفتاحية this / The 'this' Keyword",
+            ar_q: "داخل التابع grades للكائن students، على ماذا تشير الكلمة المفتاحية this؟",
+            en_q: "Inside the grades method of students, what does the keyword 'this' refer to?",
+            options: [
+                { ar: "المتغير العام لنطاق المتصفح", en: "Global scope browser object" },
+                { ar: "دالة الطباعة الخارجية كلياً", en: "Entirely external logger method" },
+                { ar: "الملف البرمجي من الخارج", en: "Outer script file wrapper" },
+                { ar: "الكائن نفسه المستدعي للتابع", en: "The calling object itself" }
+            ],
+            correct: 3,
+            exp_ar: "تشير this داخل التابع العادي للكائن إلى الكائن المستدعي نفسه، وتسمح بالوصول لخصائصه مثل this.ali.",
+            exp_en: "Inside an object method, 'this' refers to the object from which the method was called."
+        },
+        {
+            topic: "الدوال الإنشائية / Constructors",
+            ar_q: "ما هو الدور الأساسي للتابع constructor داخل الأصناف في JavaScript؟",
+            en_q: "What is the primary role of the constructor method inside classes in JavaScript?",
+            options: [
+                { ar: "تهيئة الكائن وتجهيزه عند إنشائه", en: "Initializing the instance upon creation" },
+                { ar: "حذف الخصائص القديمة من النظام", en: "Purging legacy attributes from runtime" },
+                { ar: "منع تكرار أسماء الأصناف بالملف", en: "Restricting duplicate class declarations" },
+                { ar: "ربط المتصفح بمصادر البيانات الخارجية", en: "Connecting scripts to external backends" }
+            ],
+            correct: 0,
+            exp_ar: "الدالة constructor هي دالة خاصة تُستدعى تلقائياً لتهيئة وتحديد خصائص الكائن الجديد فور إنشائه.",
+            exp_en: "A constructor is a special lifecycle method designed to initialize instances upon instantiation."
+        },
+        {
+            topic: "إنشاء النسخ / Instantiation",
+            ar_q: "متى يتم تنفيذ الأوامر المكتوبة داخل constructor الصنف تلقائياً؟",
+            en_q: "When are statements inside a class constructor automatically executed?",
+            options: [
+                { ar: "عند طلب التوابع الإضافية يدوياً", en: "When secondary methods run manually" },
+                { ar: "عند إنشاء نسخة جديدة بواسطة new", en: "When a new instance is created via new" },
+                { ar: "عند حذف النسخ المخزنة بالذاكرة", en: "When cached instances get garbage-collected" },
+                { ar: "عند إغلاق صفحة الويب في المتصفح", en: "When active browser tabs close entirely" }
+            ],
+            correct: 1,
+            exp_ar: "يتم تنفيذ الدالة constructor تلقائياً في كل مرة يتم فيها استخدام الكلمة new لإنشاء كائن جديد من الصنف.",
+            exp_en: "The constructor executes immediately and automatically when a class is instantiated with 'new'."
+        },
+        {
+            topic: "تتبع التنفيذ / Execution Tracing",
+            ar_q: "في الكود: let ali = new Student(); let omar = new Student(); كم مرة ستُطبع كلمة 'Hello'؟",
+            en_q: "In the code: let ali = new Student(); let omar = new Student(); how many times is 'Hello' logged?",
+            options: [
+                { ar: "مرة واحدة فقط في البداية", en: "Only one single initial time" },
+                { ar: "مرتان متتاليتان مع كل نسخة", en: "Twice consecutively with each instance" },
+                { ar: "ثلاث مرات وفق عدد العناصر", en: "Three times according to items" },
+                { ar: "لن تطبع العبارة نهائياً بالشاشة", en: "Will never be printed to console" }
+            ],
+            correct: 1,
+            exp_ar: "بما أنه تم إنشاء كائنين منفصلين (ali ثم omar)، يُستدعى الـ constructor مرتين، وتُطبع الرسالة مرتين.",
+            exp_en: "Since two distinct instances were instantiated, the constructor runs twice, logging 'Hello' twice."
+        },
+        {
+            topic: "المعاملات الإنشائية / Constructor Parameters",
+            ar_q: "في الكود: new Student('mostafa', 12)، أين يتم استقبال هذه القيم داخل الصنف؟",
+            en_q: "In the code: new Student('mostafa', 12), where are these arguments received inside the class?",
+            options: [
+                { ar: "داخل معاملات التابع constructor", en: "Inside the parameters of constructor" },
+                { ar: "داخل توابع خارجية مستقلة تماماً", en: "Inside completely detached functions" },
+                { ar: "داخل الكلمة المحجوزة للصنف مباشرة", en: "Inside the class keyword declaration" },
+                { ar: "داخل مصفوفة المتغيرات العامة للنظام", en: "Inside global variable array structures" }
+            ],
+            correct: 0,
+            exp_ar: "تُمرر الوسائط المعطاة لـ new Student(...) مباشرة إلى معاملات دالة constructor(n, a) لتهيئتها.",
+            exp_en: "Arguments passed to class instantiation are received directly by the constructor parameters."
+        },
+        {
+            topic: "تعيين الخصائص / Property Assignment",
+            ar_q: "داخل الدالة الإنشائية، ما وظيفة العبارة this.name = n؟",
+            en_q: "Inside a constructor method, what is the role of this.name = n?",
+            options: [
+                { ar: "مقارنة النصوص المدخلة للتأكد منها", en: "Comparing string inputs for validation" },
+                { ar: "تخزين القيمة كخاصية في الكائن المنشأ", en: "Saving the value as an instance property" },
+                { ar: "إرسال البيانات إلى نوافذ التنبيهات", en: "Broadcasting values via browser alerts" },
+                { ar: "تفريغ المتغيرات القديمة من مساحتها", en: "Clearing previous variables from cache" }
+            ],
+            correct: 1,
+            exp_ar: "تقوم هذه العبارة بتعيين القيمة الممررة n كخاصية دائمة تسمى name على الكائن الجديد عبر this.",
+            exp_en: "This statement attaches the passed argument 'n' as a persistent property 'name' onto the current instance."
+        },
+        {
+            topic: "توابع الأصناف / Class Methods",
+            ar_q: "عند إنشاء let ali = new Student('ali', 12) ثم تنفيذ ali.data()، ماذا سينتج؟",
+            en_q: "When executing let ali = new Student('ali', 12) followed by ali.data(), what happens?",
+            options: [
+                { ar: "طباعة استثناء في نوع البيانات", en: "Throwing an uncaught type error" },
+                { ar: "ظهور نافذة تنبيه تحوي البيانات", en: "Displaying an alert with instance data" },
+                { ar: "تعديل قيم الخصائص بصورة دائمة", en: "Permanently modifying property states" },
+                { ar: "إرجاع ناتج جمع القيم الرقمية", en: "Returning the sum of numerical fields" }
+            ],
+            correct: 1,
+            exp_ar: "يستدعي التابع data() نافذة alert تعرض قيم الخصائص المخزنة على الكائن المستدعي: Student Name = ali Student Age = 12.",
+            exp_en: "The method triggers an alert string interpolated with the instance's stored name and age properties."
+        },
+        {
+            topic: "الوراثة / Inheritance Syntax",
+            ar_q: "ما الكلمة المفتاحية المستخدمة لتحقيق الوراثة بين صنفين في JavaScript الحديثة؟",
+            en_q: "Which keyword is used to establish inheritance between two classes in modern JavaScript?",
+            options: [
+                { ar: "استخدام الكلمة implements", en: "Using keyword implements" },
+                { ar: "استخدام الكلمة inherits", en: "Using keyword inherits" },
+                { ar: "استخدام الكلمة extends", en: "Using keyword extends" },
+                { ar: "استخدام الكلمة prototype", en: "Using keyword prototype" }
+            ],
+            correct: 2,
+            exp_ar: "تُستخدم الكلمة المفتاحية extends لإنشاء صنف فرعي يرث الخصائص والتوابع من صنف أساسي آخر.",
+            exp_en: "The 'extends' keyword is standard JavaScript syntax used to create a subclass inheriting from a parent class."
+        },
+        {
+            topic: "الأصناف الأب والابن / Super & Subclasses",
+            ar_q: "في عبارة الوراثة class Animal2 extends Animal1، ماذا يمثل Animal1؟",
+            en_q: "In the inheritance syntax class Animal2 extends Animal1, what does Animal1 represent?",
+            options: [
+                { ar: "الصنف الأساسي الموروث منه", en: "The base parent superclass" },
+                { ar: "الكائن الفرعي المشتق حديثاً", en: "The newly derived subclass" },
+                { ar: "الدالة الخارجية المساعدة للربط", en: "The external helper routine" },
+                { ar: "المتغير المؤقت لحفظ البيانات", en: "The temporary variable holder" }
+            ],
+            correct: 0,
+            exp_ar: "الصنف Animal1 هو الصنف الأب (Superclass/Parent Class) الذي يرث منه الصنف المشتق Animal2.",
+            exp_en: "Animal1 is the base parent class from which the derived class Animal2 inherits methods."
+        },
+        {
+            topic: "استدعاء التوابع الموروثة / Inherited Methods",
+            ar_q: "إذا ورث كائن myAnimal من Animal2 التابع لـ Animal1، فأي التوابع يستطيع استدعاءها؟",
+            en_q: "If an instance myAnimal inherits from Animal2 extending Animal1, which methods can it invoke?",
+            options: [
+                { ar: "تابع الصنف المشتق dog فقط", en: "Subclass method dog only" },
+                { ar: "تابع الصنف الأساسي cat فقط", en: "Superclass method cat only" },
+                { ar: "كلا التابعين cat و dog معاً", en: "Both cat and dog methods" },
+                { ar: "لا يستطيع الوصول لأي تابع", en: "Cannot invoke either method" }
+            ],
+            correct: 2,
+            exp_ar: "يرث الصنف الابن جميع توابع الصنف الأب، فيستطيع الكائن myAnimal استدعاء دالته الخاصة dog() والدالة الموروثة cat().",
+            exp_en: "The subclass inherits all ancestor methods, making both cat() and dog() available to the instance."
+        },
+        {
+            topic: "تعديل الحالة / State Mutation",
+            ar_q: "في الصنف BankAccount، ما الغرض من استدعاء التابع deposit(a)؟",
+            en_q: "In class BankAccount, what is the purpose of invoking the deposit(a) method?",
+            options: [
+                { ar: "خصم مبلغ محدد من الرصيد", en: "Subtracting funds from balance" },
+                { ar: "إضافة مبلغ محدد إلى الرصيد", en: "Adding funds to account balance" },
+                { ar: "إعادة تعيين الحساب إلى الصفر", en: "Resetting account balance to zero" },
+                { ar: "تغيير اسم العميل بشكل دائم", en: "Permanently renaming client field" }
+            ],
+            correct: 1,
+            exp_ar: "يقوم التابع deposit بتنفيذ عملية جمع تراكمي this.amount += a، مما يزيد الرصيد بالقيمة المودعة.",
+            exp_en: "The deposit method increments the current account balance by the supplied deposit amount."
+        },
+        {
+            topic: "الحسابات التراكمية / Arithmetic Operations",
+            ar_q: "بعد تنفيذ: let ali = new BankAccount('ali', 500); ali.deposit(1000); كم تصبح قيمة ali.amount؟",
+            en_q: "After executing: let ali = new BankAccount('ali', 500); ali.deposit(1000); what is ali.amount?",
+            options: [
+                { ar: "القيمة العددية 500", en: "Numeric value 500" },
+                { ar: "القيمة العددية 1000", en: "Numeric value 1000" },
+                { ar: "القيمة العددية 1500", en: "Numeric value 1500" },
+                { ar: "القيمة العددية صفر", en: "Numeric value zero" }
+            ],
+            correct: 2,
+            exp_ar: "بدأ الرصيد بـ 500 في الـ constructor، ثم أضيفت إليه 1000 بالدالة deposit، ليصبح المجموع النهائي 1500.",
+            exp_en: "Starting with 500 via the constructor, adding 1000 via deposit yields an ending balance of 1500."
+        },
+        {
+            topic: "برمجة العمليات / Logic Implementation",
+            ar_q: "ما هو الكود المناسب لكتابة التابع withdraw(a) لسحب مبلغ مالي داخل BankAccount؟",
+            en_q: "What is the proper expression to write for withdraw(a) to deduct funds inside BankAccount?",
+            options: [
+                { ar: "كتابة التعبير this.amount += a", en: "Expression this.amount += a" },
+                { ar: "كتابة التعبير this.amount *= a", en: "Expression this.amount *= a" },
+                { ar: "كتابة التعبير this.amount -= a", en: "Expression this.amount -= a" },
+                { ar: "كتابة التعبير this.amount /= a", en: "Expression this.amount /= a" }
+            ],
+            correct: 2,
+            exp_ar: "عملية السحب تعني إنقاص الرصيد بقيمة المبلغ المسحوب، وتُكتب عبر عامل الطرح التراكمي: this.amount -= a.",
+            exp_en: "Withdrawing implies decrementing the balance by amount 'a', written as this.amount -= a."
+        },
+        {
+            topic: "أنواع الأخطاء / Error Types",
+            ar_q: "ماذا يحدث عند تنفيذ console.log(mazen) دون تعريفه ودون وضعه داخل try...catch؟",
+            en_q: "What occurs when executing console.log(mazen) without prior declaration or try...catch wrapping?",
+            options: [
+                { ar: "توقف الكود وحدوث ReferenceError", en: "Script halts throwing ReferenceError" },
+                { ar: "تخطي السطر ومواصلة تنفيذ الكود", en: "Silent skip continuing execution" },
+                { ar: "طباعة القيمة غير المعرف بالشاشة", en: "Logging primitive undefined value" },
+                { ar: "إعادة القيمة الصفرية تلقائياً للبرنامج", en: "Automatically resolving to zero" }
+            ],
+            correct: 0,
+            exp_ar: "محاولة قراءة متغير غير معرف في النطاق يطلق استثناء ReferenceError فوري، ويتوقف تنفيذ باقي البرنامج تماماً.",
+            exp_en: "Referencing an undeclared identifier triggers an unhandled ReferenceError and crashes execution."
+        },
+        {
+            topic: "إنشاء الكائنات / Object Instantiation",
+            ar_q: "ما الكلمة المحجوزة المستخدمة في JavaScript لإنشاء كائن جديد من أي صنف؟",
+            en_q: "Which keyword is utilized in JavaScript to instantiate a new object from any class?",
+            options: [
+                { ar: "استخدام الكلمة create", en: "Using keyword create" },
+                { ar: "استخدام الكلمة make", en: "Using keyword make" },
+                { ar: "استخدام الكلمة build", en: "Using keyword build" },
+                { ar: "استخدام الكلمة new", en: "Using keyword new" }
+            ],
+            correct: 3,
+            exp_ar: "تُستخدم الكلمة المفتاحية new لإنشاء وتخصيص كائن جديد من الصنف واستدعاء الدالة الإنشائية له.",
+            exp_en: "The 'new' operator instantiates a class, allocates memory, and calls its constructor."
+        }
+    ];
+
+    let userAnswers = new Array(questions.length).fill(null);
+    let currentIdx = 0;
+    let score = 0;
+
+    function loadScores() {
+        const storedHigh = localStorage.getItem('js_quiz_highscore');
+        const high = storedHigh ? parseInt(storedHigh) : 0;
+        document.getElementById('highScore').innerText = high;
+
+        const storedFirst = localStorage.getItem('js_quiz_first_score');
+        document.getElementById('firstScore').innerText = (storedFirst !== null) ? storedFirst : "--";
+    }
+
+    function saveScores(finalScore) {
+        let isFirstTime = false;
+        if (localStorage.getItem('js_quiz_first_score') === null) {
+            localStorage.setItem('js_quiz_first_score', finalScore);
+            document.getElementById('firstScore').innerText = finalScore;
+            isFirstTime = true;
+        }
+
+        const currentHigh = parseInt(localStorage.getItem('js_quiz_highscore') || '0');
+        let isNewHigh = false;
+        if (finalScore > currentHigh) {
+            localStorage.setItem('js_quiz_highscore', finalScore);
+            document.getElementById('highScore').innerText = finalScore;
+            isNewHigh = true;
+        }
+        return { isFirstTime, isNewHigh };
+    }
+
+    function calculateScore() {
+        let s = 0;
+        for (let i = 0; i < questions.length; i++) {
+            if (userAnswers[i] !== null && userAnswers[i] === questions[i].correct) {
+                s++;
+            }
+        }
+        score = s;
+        document.getElementById('score').innerText = score;
+        return score;
+    }
+
+    function displayQuestion() {
+        const q = questions[currentIdx];
+        document.getElementById('qCurrent').innerText = currentIdx + 1;
+        document.getElementById('topicBadge').innerText = q.topic;
+        document.getElementById('questionTextAr').innerText = (currentIdx + 1) + ". " + q.ar_q;
+        document.getElementById('questionTextEn').innerText = "Q" + (currentIdx + 1) + ": " + q.en_q;
+
+        const answeredCount = userAnswers.filter(a => a !== null).length;
+        const pct = (answeredCount / questions.length) * 100;
+        document.getElementById('progressBar').style.width = pct + '%';
+
+        const container = document.getElementById('optionsContainer');
+        container.innerHTML = '';
+
+        const expBox = document.getElementById('explanationText');
+        const statusIndicator = document.getElementById('qStatusIndicator');
+        const prevAns = userAnswers[currentIdx];
+
+        if (prevAns === null) {
+            statusIndicator.innerText = "لم يُجب بعد / Not answered";
+            statusIndicator.style.color = "var(--text-muted)";
+            expBox.style.display = 'none';
+        } else {
+            statusIndicator.innerText = prevAns === q.correct ? "✅ إجابة صحيحة مسجلة" : "❌ إجابة خاطئة مسجلة";
+            statusIndicator.style.color = prevAns === q.correct ? "var(--success)" : "var(--danger)";
+            showExplanation(prevAns === q.correct, prevAns);
+        }
+
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerHTML = `
+                <div class="opt-ar">${['أ', 'ب', 'ج', 'د'][idx]}) ${opt.ar}</div>
+                <div class="opt-en">${['A', 'B', 'C', 'D'][idx]}) ${opt.en}</div>
+            `;
+
+            if (prevAns !== null) {
+                btn.disabled = true;
+                if (idx === q.correct) {
+                    btn.classList.add('correct');
+                } else if (idx === prevAns) {
+                    btn.classList.add('wrong');
+                }
+            } else {
+                btn.onclick = () => selectAnswer(idx);
+            }
+            container.appendChild(btn);
+        });
+
+        document.getElementById('prevBtn').disabled = (currentIdx === 0);
+        document.getElementById('nextBtn').innerText = (currentIdx === questions.length - 1) ? "إنهاء الاختبار / Finish 🏁" : "التالي / Next ⬅️";
+    }
+
+    function selectAnswer(chosenIdx) {
+        if (userAnswers[currentIdx] !== null) return;
+
+        userAnswers[currentIdx] = chosenIdx;
+        calculateScore();
+
+        const q = questions[currentIdx];
+        const isCorrect = (chosenIdx === q.correct);
+
+        const buttons = document.querySelectorAll('.opt-btn');
+        buttons.forEach(b => b.disabled = true);
+
+        if (isCorrect) {
+            buttons[chosenIdx].classList.add('correct');
+        } else {
+            buttons[chosenIdx].classList.add('wrong');
+            buttons[q.correct].classList.add('correct');
+        }
+
+        showExplanation(isCorrect, chosenIdx);
+
+        const statusIndicator = document.getElementById('qStatusIndicator');
+        statusIndicator.innerText = isCorrect ? "✅ إجابة صحيحة مسجلة" : "❌ إجابة خاطئة مسجلة";
+        statusIndicator.style.color = isCorrect ? "var(--success)" : "var(--danger)";
+
+        const answeredCount = userAnswers.filter(a => a !== null).length;
+        document.getElementById('progressBar').style.width = ((answeredCount / questions.length) * 100) + '%';
+    }
+
+    function showExplanation(isCorrect, chosenIdx) {
+        const q = questions[currentIdx];
+        const expBox = document.getElementById('explanationText');
+
+        if (isCorrect) {
+            expBox.innerHTML = `
+                <b>✅ إجابة صحيحة / Correct!</b><br>
+                <div>${q.exp_ar}</div>
+                <div class="exp-en">${q.exp_en}</div>
+            `;
+            expBox.style.borderRightColor = 'var(--success)';
+        } else {
+            expBox.innerHTML = `
+                <b>❌ إجابة غير دقيقة / Incorrect!</b><br>
+                <div>الإجابة الصحيحة هي: <b>${q.options[q.correct].ar}</b></div>
+                <div class="exp-en">Correct answer: <b>${q.options[q.correct].en}</b></div>
+                <div style="margin-top: 6px;">${q.exp_ar}</div>
+                <div class="exp-en">${q.exp_en}</div>
+            `;
+            expBox.style.borderRightColor = 'var(--danger)';
+        }
+        expBox.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        if (currentIdx < questions.length - 1) {
+            currentIdx++;
+            displayQuestion();
+        } else {
+            showFinalResults();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIdx > 0) {
+            currentIdx--;
+            displayQuestion();
+        }
+    }
+
+    function openIndexModal() {
+        buildIndexGrid();
+        document.getElementById('indexModal').style.display = 'flex';
+    }
+
+    function closeIndexModal() {
+        document.getElementById('indexModal').style.display = 'none';
+    }
+
+    function closeIndexModalOnOutside(e) {
+        if (e.target.id === 'indexModal') closeIndexModal();
+    }
+
+    function buildIndexGrid() {
+        const grid = document.getElementById('gridIndexContainer');
+        grid.innerHTML = '';
+
+        for (let i = 0; i < questions.length; i++) {
+            const pill = document.createElement('div');
+            pill.className = 'index-pill';
+            pill.innerText = (i + 1);
+
+            if (i === currentIdx) pill.classList.add('active');
+
+            if (userAnswers[i] !== null) {
+                if (userAnswers[i] === questions[i].correct) {
+                    pill.classList.add('solved-correct');
+                } else {
+                    pill.classList.add('solved-wrong');
+                }
+            }
+
+            pill.onclick = () => {
+                currentIdx = i;
+                displayQuestion();
+                closeIndexModal();
+            };
+            grid.appendChild(pill);
+        }
+    }
+
+    function showFinalResults() {
+        document.getElementById('quizCard').style.display = 'none';
+        document.getElementById('progressBar').style.width = '100%';
+
+        const resultsCard = document.getElementById('resultsCard');
+        resultsCard.style.display = 'block';
+
+        calculateScore();
+        document.getElementById('finalScore').innerText = score;
+        const res = saveScores(score);
+
+        const notice = document.getElementById('highScoreNotice');
+        const storedFirst = localStorage.getItem('js_quiz_first_score');
+        const storedHigh = localStorage.getItem('js_quiz_highscore');
+
+        let textDetails = `🎯 أول محاولة مسجلة: ${storedFirst} من 20<br>`;
+        if (res.isNewHigh && score > 0) {
+            textDetails += `🏆 رقم قياسي جديد حققته الآن: ${score} من 20!`;
+        } else {
+            textDetails += `🏆 أعلى نتيجة مسجلة على هذا الجهاز: ${storedHigh} من 20`;
+        }
+        notice.innerHTML = textDetails;
+    }
+
+    function restartQuiz() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentIdx = 0;
+        score = 0;
+        document.getElementById('score').innerText = '0';
+        document.getElementById('resultsCard').style.display = 'none';
+        document.getElementById('quizCard').style.display = 'block';
+        displayQuestion();
+    }
+
+    window.onload = function() {
+        loadScores();
+        displayQuestion();
+    };
+</script>
+</body>
+</html>
