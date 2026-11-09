@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اختبار جافاسكريبت التفاعلي • Interactive JS DOM Exam (50 Questions)</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Cairo', 'Inter', 'sans-serif'],
+            en: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          animation: {
+            'card-enter': 'cardEnter 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'pop-in': 'popIn 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+            'float-toast': 'floatToast 1.1s ease-out forwards',
+            'pulse-border': 'pulseBorder 2s infinite',
+          },
+          keyframes: {
+            cardEnter: {
+              '0%': { opacity: '0', transform: 'translateY(22px) scale(0.98)' },
+              '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+            },
+            popIn: {
+              '0%': { opacity: '0', transform: 'scale(0.88)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
+            },
+            floatToast: {
+              '0%': { opacity: '1', transform: 'translateY(0) scale(0.9)' },
+              '50%': { opacity: '1', transform: 'translateY(-18px) scale(1.05)' },
+              '100%': { opacity: '0', transform: 'translateY(-38px) scale(0.95)' },
+            },
+            pulseBorder: {
+              '0%, 100%': { boxShadow: '0 0 0 0 rgba(99, 102, 241, 0.4)' },
+              '50%': { boxShadow: '0 0 22px 4px rgba(99, 102, 241, 0.25)' },
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+    ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .option-card {
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .option-card:hover:not(:disabled) {
+      transform: translateY(-3px);
+    }
+    .option-card.selected-choice {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.28) 0%, rgba(147, 51, 234, 0.28) 100%);
+      border-color: #818cf8 !important;
+      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.35);
+      transform: translateY(-3px);
+    }
+    .option-card.selected-choice .letter-pill {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      color: #ffffff;
+      border-color: transparent;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white pb-16">
+
+  <!-- Confetti Canvas (Used only on Final Exam Completion) -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Floating Lock Notification Container -->
+  <div id="toast-container" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2"></div>
+
+  <!-- Top Sticky Header -->
+  <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-lg">
+    <div class="max-w-6xl mx-auto px-4 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- Exam Brand -->
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 text-xl font-extrabold select-none">
+            ⚡
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-base sm:text-lg font-extrabold text-white">
+                اختبار مشاريع جافاسكريبت التفاعلي • JS DOM Projects Exam
+              </h1>
+              <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                🔒 محاولة واحدة فقط • One-Way Locked
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">
+              50 سؤالاً ثنائي اللغة (عربي + English) • بدون رجوع للأسئلة السابقة • النتيجة في النهاية فقط
+            </p>
+          </div>
+        </div>
+
+        <!-- Status & Sound Toggle -->
+        <div class="flex items-center gap-2.5">
+          <div id="header-student-pill" class="hidden items-center gap-2 bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-300">
+            <span>👤</span>
+            <span id="header-student-name"></span>
+          </div>
+
+          <div id="header-progress-pill" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 px-3.5 py-1.5 rounded-xl">
+            <span class="text-indigo-400 text-sm">🔒</span>
+            <div class="text-right">
+              <div class="text-[10px] text-slate-400 font-bold leading-none">التقدم • Progress</div>
+              <div id="header-progress-text" class="text-xs sm:text-sm font-extrabold text-white font-mono mt-0.5">0 / 50</div>
+            </div>
+          </div>
+
+          <button id="btn-sound-toggle" type="button" title="تشغيل/كتم الصوت • Toggle Sound" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition text-sm">
+            🔊
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="mt-2.5 flex items-center gap-3">
+        <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700/60">
+          <div id="top-progress-bar" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <span id="top-progress-pct" class="text-xs font-mono text-indigo-300 font-bold shrink-0">0%</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-5xl mx-auto px-4 py-6">
+
+    <!-- ==================== SCREEN 1: WELCOME & RULES GATE ==================== -->
+    <section id="welcome-screen" class="max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl animate-card-enter">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-3xl shadow-xl shadow-indigo-500/25">
+          🛡️
+        </div>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-white mb-1">
+          الاختبار التفاعلي الشامل لمشاريع JavaScript DOM
+        </h2>
+        <p class="text-sm text-indigo-300 font-en font-semibold" dir="ltr">
+          Comprehensive Interactive JavaScript DOM Projects Examination (50 Questions)
+        </p>
+      </div>
+
+      <!-- Strict Exam Rules Box (Bilingual) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-6">
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-start gap-3">
+          <span class="text-xl shrink-0">🌐</span>
+          <div>
+            <div class="text-sm font-bold text-white">عربي وإنجليزي في نفس الوقت</div>
+            <div class="text-xs text-slate-400 mt-0.5 font-en" dir="ltr">Full Bilingual Display: Every question and option is shown in Arabic &amp; English simultaneously.</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-start gap-3">
+          <span class="text-xl shrink-0">🔒</span>
+          <div>
+            <div class="text-sm font-bold text-amber-300">ممنوع الرجوع للسؤال السابق</div>
+            <div class="text-xs text-slate-400 mt-0.5 font-en" dir="ltr">One-Way Forward Progression: Once an answer is confirmed, you cannot return to it.</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-start gap-3">
+          <span class="text-xl shrink-0">🕵️‍♂️</span>
+          <div>
+            <div class="text-sm font-bold text-purple-300">النتيجة والتصحيح في النهاية فقط</div>
+            <div class="text-xs text-slate-400 mt-0.5 font-en" dir="ltr">Deferred Grading: Correct/wrong feedback is hidden until all 50 questions are completed.</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-start gap-3">
+          <span class="text-xl shrink-0">🚫</span>
+          <div>
+            <div class="text-sm font-bold text-rose-300">محاولة واحدة فقط بدون إعادة</div>
+            <div class="text-xs text-slate-400 mt-0.5 font-en" dir="ltr">Single Attempt Lock: Progress is locked automatically; the exam cannot be restarted.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Name Input & Start Button -->
+      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+        <div>
+          <label for="student-name-input" class="block text-xs sm:text-sm font-bold text-slate-200 mb-2">
+            ✍️ اسم الطالب (اختياري) • <span class="font-en" dir="ltr">Student Name (Optional):</span>
+          </label>
+          <input id="student-name-input" type="text" placeholder="اكتب اسمك هنا قبل بدء الامتحان • Enter your full name..." class="w-full bg-slate-900 text-white px-4 py-3 rounded-xl border border-slate-700 focus:outline-none focus:border-indigo-500 text-sm sm:text-base">
+        </div>
+
+        <button id="btn-start-exam" type="button" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:via-purple-500 hover:to-pink-500 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-indigo-500/25 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
+          <span>🚀 ابدأ الاختبار الآن (محاولة واحدة)</span>
+          <span>•</span>
+          <span class="font-en" dir="ltr">Start Locked Exam Now</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: ACTIVE LOCKED QUESTION STAGE ==================== -->
+    <section id="exam-stage-screen" class="hidden space-y-5">
+
+      <!-- One-Way Locked Trail Ribbon -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-extrabold text-xs sm:text-sm">
+            السؤال <span id="q-current-num" class="font-mono">1</span> من 50 • <span class="font-en" dir="ltr">Question <span id="q-current-num-en" class="font-mono">1</span> of 50</span>
+          </span>
+          <span id="q-topic-badge" class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold"></span>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs text-amber-300/90 font-semibold bg-amber-500/10 border border-amber-500/25 px-3 py-1 rounded-xl">
+          <span>🔒</span>
+          <span>الأسئلة السابقة مقفلة • <span class="font-en" dir="ltr">Previous Questions Locked</span></span>
+        </div>
+      </div>
+
+      <!-- Mini Visual Trail of Recent/Upcoming Questions (Read-Only Non-Clickable) -->
+      <div id="locked-trail-bar" class="flex items-center gap-1.5 overflow-x-auto py-1 px-1 select-none" dir="ltr"></div>
+
+      <!-- Main Question Card -->
+      <article id="question-card" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden animate-card-enter">
+        <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+
+        <!-- 1. Bilingual Question Text Box (Separated from Code!) -->
+        <div class="space-y-3 mb-6">
+          <!-- Arabic Question -->
+          <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90" dir="rtl">
+            <div class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider mb-1">السؤال باللغة العربية:</div>
+            <h2 id="q-text-ar" class="text-base sm:text-lg font-extrabold text-white leading-relaxed"></h2>
+          </div>
+
+          <!-- English Question -->
+          <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 font-en" dir="ltr">
+            <div class="text-[11px] font-bold text-purple-400 uppercase tracking-wider mb-1">Question in English:</div>
+            <h3 id="q-text-en" class="text-sm sm:text-base font-bold text-slate-100 leading-relaxed"></h3>
+          </div>
+        </div>
+
+        <!-- 2. Dedicated Separate Code Window (Strictly separated from Question Text) -->
+        <div id="q-code-container" class="mb-6 rounded-2xl overflow-hidden border-2 border-slate-800 bg-slate-950 shadow-inner" dir="ltr">
+          <div class="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+              <span class="ml-2 text-xs font-mono text-indigo-300 font-semibold">script.js — JavaScript DOM Code Snippet</span>
+            </div>
+            <span class="text-[11px] font-mono text-slate-400">Read-Only Code Block</span>
+          </div>
+          <div class="p-4 sm:p-5 overflow-x-auto bg-[#0b1120]">
+            <pre class="font-mono text-xs sm:text-sm text-emerald-300 leading-relaxed"><code id="q-code-content"></code></pre>
+          </div>
+        </div>
+
+        <!-- 3. Four Bilingual Options (A, B, C, D) -->
+        <div class="mb-2 text-xs font-bold text-slate-400 flex items-center justify-between">
+          <span>اختر إجابة واحدة ثم اضغط على زر التأكيد بالأسفل:</span>
+          <span class="font-en" dir="ltr">Select one option then click Confirm &amp; Lock below:</span>
+        </div>
+
+        <div id="options-container" class="grid grid-cols-1 gap-3.5 mb-7"></div>
+
+        <!-- 4. One-Way Confirm & Lock Action Bar -->
+        <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-xs text-slate-400 flex items-center gap-2">
+            <span>⚠️</span>
+            <span>تنبيه: بعد الضغط على تأكيد الإجابة لن تتمكن من العودة لهذا السؤال أو تعديله.</span>
+          </div>
+
+          <button id="btn-confirm-answer" type="button" disabled class="w-full sm:w-auto px-7 py-3.5 rounded-2xl font-extrabold text-xs sm:text-sm bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25 transition disabled:opacity-35 disabled:pointer-events-none flex items-center justify-center gap-2.5 shrink-0">
+            <span>🔒</span>
+            <span id="confirm-btn-label">تأكيد الإجابة والسؤال التالي • Lock &amp; Next</span>
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <!-- ==================== SCREEN 3: FINAL LOCKED RESULTS & FULL REVIEW ==================== -->
+    <section id="results-screen" class="hidden space-y-6 animate-card-enter">
+
+      <!-- Official Locked Score Banner -->
+      <div class="bg-slate-900 border-2 border-indigo-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div class="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-emerald-400 via-indigo-500 to-purple-500"></div>
+
+        <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-800">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-bold mb-2">
+              <span>✅ تم إنهاء واعتماد الاختبار نهائياً • Official Locked Exam Result</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white">
+              النتيجة النهائية للامتحان • Final Exam Report
+            </h2>
+            <p id="result-student-meta" class="text-xs sm:text-sm text-slate-400 mt-1"></p>
+          </div>
+
+          <div class="px-4 py-2.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-amber-300 font-bold flex items-center gap-2">
+            <span>🔒</span>
+            <span>الامتحان مقفل ولا يمكن إعادته • Exam Permanently Locked</span>
+          </div>
+        </div>
+
+        <!-- Score Summary Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 my-6">
+          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-center">
+            <div class="text-xs text-slate-400 font-bold">الدرجة الكلية • Score</div>
+            <div id="res-score-fraction" class="text-2xl sm:text-3xl font-extrabold text-indigo-300 font-mono mt-1">0 / 50</div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-center">
+            <div class="text-xs text-slate-400 font-bold">النسبة المئوية • Percentage</div>
+            <div id="res-score-pct" class="text-2xl sm:text-3xl font-extrabold text-purple-300 font-mono mt-1">0%</div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-center">
+            <div class="text-xs text-emerald-300 font-bold">إجابات صحيحة • Correct</div>
+            <div id="res-correct-count" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono mt-1">0</div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-rose-950/30 border border-rose-500/30 text-center">
+            <div class="text-xs text-rose-300 font-bold">إجابات خاطئة • Incorrect</div>
+            <div id="res-wrong-count" class="text-2xl sm:text-3xl font-extrabold text-rose-400 font-mono mt-1">0</div>
+          </div>
+        </div>
+
+        <!-- Breakdown by Project Topic -->
+        <div>
+          <h3 class="text-sm font-extrabold text-slate-300 mb-3">
+            📊 تفصيل الأداء حسب المشاريع البرمجية • Performance Breakdown by Project:
+          </h3>
+          <div id="topic-breakdown-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
+      </div>
+
+      <!-- Filter Bar for Final Question-by-Question Review -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 class="text-base font-extrabold text-white">
+            📋 المراجعة التفصيلية للـ 50 سؤالاً • Detailed 50-Question Review
+          </h3>
+          <p class="text-xs text-slate-400">الآن بعد انتهاء الامتحان يمكنك مراجعة إجاباتك ومقارنتها بالإجابة الصحيحة لكل سؤال.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" data-rfilter="all" class="rev-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white transition">
+            الكل • All (50)
+          </button>
+          <button type="button" data-rfilter="correct" class="rev-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition">
+            ✅ الصحيحة • Correct
+          </button>
+          <button type="button" data-rfilter="wrong" class="rev-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 transition">
+            ❌ الخاطئة • Incorrect
+          </button>
+        </div>
+      </div>
+
+      <!-- Detailed Review List Container -->
+      <div id="review-list-container" class="space-y-4"></div>
+    </section>
+
+  </main>
+
+  <script>
+    (function() {
+      const QUESTIONS = [{"id": 1, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "ما وظيفة السطر البرمجي التالي داخل دالة توليد الصناديق؟", "q_en": "What is the exact role of the following line inside generateBoxes?", "code": "hearts.innerText = '💖'.repeat(3);", "correct": 1, "options": [{"ar": "إضافة ثلاث صور جديدة لعنصر القلوب داخل شجرة الصفحة في كل مستوى جديد", "en": "Appends three new image nodes into the hearts container on every new level"}, {"ar": "تكرار رمز القلب ثلاث مرات متتالية وعرضه كنص داخل العنصر", "en": "Repeats the heart emoji three times and sets it as text inside the element"}, {"ar": "تخزين الرقم 3 داخل متغير نصي لحساب عدد المحاولات الخاطئة المتبقية", "en": "Stores the number 3 inside a string variable to count remaining wrong tries"}, {"ar": "تشغيل ملف الصوت الخاص بالقلوب ثلاث مرات متتالية عند بداية الجولة", "en": "Plays the hearts audio file three times in a row when the round starts"}]}, {"id": 2, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "لماذا يتم تنفيذ هذا السطر قبل حلقة for التي تنشئ الصناديق؟", "q_en": "Why is this line executed right before the for-loop that creates boxes?", "code": "boxes.innerHTML = '';", "correct": 2, "options": [{"ar": "لإخفاء حاوية الصناديق نهائياً من شاشة المتصفح حتى انتهاء المؤقت الزمني", "en": "To hide the boxes container completely from the browser viewport until the timer ends"}, {"ar": "لحفظ ترتيب الصناديق السابقة داخل مصفوفة فارغة في ذاكرة المتصفح المؤقتة", "en": "To save the previous box order inside an empty array in browser temporary memory"}, {"ar": "لتفريغ الحاوية ومسح صناديق المستوى السابق قبل إضافة الصناديق الجديدة", "en": "To empty the container and clear previous level boxes before adding new ones"}, {"ar": "لتعطيل أحداث النقر بالماوس مؤقتاً على جميع العناصر الموجودة داخل الصفحة", "en": "To temporarily disable mouse click events across all elements inside the document"}]}, {"id": 3, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "ما القيم المحتملة التي يخزنها المتغير treasureIndex عندما تكون قيمة المعامل x تساوي 4؟", "q_en": "What possible values are stored in treasureIndex when parameter x equals 4?", "code": "treasureIndex = Math.floor(Math.random() * x);", "correct": 0, "options": [{"ar": "عدد صحيح عشوائي من 0 إلى 3 شاملاً الصفر والثلاثة", "en": "A random integer from 0 to 3 inclusive of zero and three"}, {"ar": "عدد صحيح عشوائي من 1 إلى 4 شاملاً الواحد والأربعة في كل جولة", "en": "A random integer from 1 to 4 inclusive of one and four on every round"}, {"ar": "عدد عشري عشوائي يقع بين 0.0 و 4.0 مع الاحتفاظ بالكسور العشرية", "en": "A random floating-point number between 0.0 and 4.0 keeping decimal fractions"}, {"ar": "عدد صحيح ثابت يساوي 4 دائماً لأن الدالة تقرب القيمة إلى الأعلى", "en": "A fixed integer always equal to 4 because the method rounds values upward"}]}, {"id": 4, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "ماذا يفعل السطر التالي داخل حلقة التكرار في دالة generateBoxes؟", "q_en": "What does the following line do inside the loop of generateBoxes?", "code": "const box = document.createElement('img');", "correct": 3, "options": [{"ar": "يبحث عن أول عنصر صورة موجود مسبقاً داخل ملف HTML ويخزنه في متغير", "en": "Queries the first pre-existing image element inside the HTML file and stores it"}, {"ar": "ينسخ عنصر الصورة من المجلد المحلي ويعرضه تلقائياً بدون الحاجة لإضافته", "en": "Clones the image file from the local folder and renders it automatically right away"}, {"ar": "يحول مسار الصورة النصي إلى كائن صوتي تفاعلي يعمل عند النقر عليه", "en": "Converts the image string path into an interactive audio object triggered on click"}, {"ar": "ينشئ عنصر صورة img جديداً في الذاكرة تمهيداً لضبط خصائصه وإضافته", "en": "Creates a new img DOM element in memory ready to be configured and appended"}]}, {"id": 5, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "ما الهدف من استخدام الخاصية dataset.index في الكود التالي؟", "q_en": "What is the purpose of using dataset.index in the following code?", "code": "box.dataset.index = i;", "correct": 1, "options": [{"ar": "تحديد أبعاد عرض وارتفاع الصورة بالبكسل بناءً على قيمة العداد الحالية", "en": "Sets the pixel width and height dimensions of the image based on loop counter i"}, {"ar": "تخزين رقم ترتيب الصندوق داخل السمة data-index لمقارنته بموقع الكنز", "en": "Stores the box index inside the data-index attribute to compare with treasureIndex"}, {"ar": "تغيير مسار ملف الصورة الخارجي تلقائياً ليتطابق مع رقم المستوى الحالي", "en": "Updates the external image file path automatically to match the current level number"}, {"ar": "ترتيب عناصر الصور تنازلياً من اليمين إلى اليسار داخل حاوية الصناديق", "en": "Sorts the image elements in descending order from right to left inside the container"}]}, {"id": 6, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "ما وظيفة هذا السطر الموجود في بداية حدث النقر على الصندوق؟", "q_en": "What is the function of this line at the start of the box click listener?", "code": "if (gameOver) return;", "correct": 2, "options": [{"ar": "يعيد تشغيل المستوى الأول تلقائياً ويصفر جميع المتغيرات عند انتهاء اللعبة", "en": "Automatically restarts level one and resets all state variables when the game ends"}, {"ar": "يحذف جميع عناصر الصناديق من الشاشة ويظهر نافذة منبثقة بنتيجة اللاعب", "en": "Deletes all box elements from the screen and displays a popup modal with the score"}, {"ar": "يخرج من الدالة فوراً ويمنع فتح أي صندوق إضافي إذا كانت الجولة قد انتهت", "en": "Exits the function immediately and blocks opening more boxes if the round is over"}, {"ar": "يخصم قلباً إضافياً من رصيد اللاعب عند محاولة النقر بعد انتهاء الجولة", "en": "Deducts an extra heart from the player's life balance when clicking after game over"}]}, {"id": 7, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "لماذا يتم تنفيذ السطر التالي عندما يختار اللاعب صندوقاً فارغاً؟", "q_en": "Why is the following line executed when the player clicks an empty box?", "code": "box.style.pointerEvents = 'none';", "correct": 0, "options": [{"ar": "لتعطيل النقر على هذا الصندوق المفتوح حتى لا يخسر اللاعب قلباً آخر بسببه", "en": "To disable clicking this opened box again so the player does not lose another heart"}, {"ar": "لإخفاء الصندوق الخاطئ من الصفحة تماماً وإزالة مساحته من جانب الصناديق داخل صفحة المتصفح", "en": "To hide the wrong box completely from the page and collapse its layout space inside the browser DOM"}, {"ar": "لإيقاف النقر على جميع الصناديق الأخرى في المستوى لمدة ثانيتين كاملتين", "en": "To freeze clicking on all other boxes in the current level for two full seconds"}, {"ar": "لتحويل لون إطار الصندوق إلى اللون الأحمر المتوهج مع بقائه قابلاً للنقر", "en": "To turn the box border into a glowing red outline while keeping it clickable"}]}, {"id": 8, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "متى يتم الانتقال إلى المستوى التالي عند العثور على صندوق الكنز الصحيح؟", "q_en": "When does the game advance to the next level after finding the treasure box?", "code": "setTimeout(() => {\n    currentLevel += 1;\n    generateBoxes(currentLevel + 1);\n}, 2000);", "correct": 3, "options": [{"ar": "يتكرر الانتقال كل ثانيتين بشكل مستمر حتى يضغط اللاعب على زر التوقف داخل صفحة المتصفح", "en": "Repeats advancing every two seconds continuously until the player clicks stop inside the browser DOM"}, {"ar": "ينتقل في نفس اللحظة فوراً بدون أي تأخير زمني ثم يتوقف لمدة ثانيتين", "en": "Advances instantaneously with zero time delay and then pauses for two seconds"}, {"ar": "ينتقل بعد مرور عشرين ثانية كاملة من لحظة تشغيل صوت الفوز في اللعبة", "en": "Advances after twenty full seconds have elapsed since playing the win sound"}, {"ar": "ينتقل مرة واحدة بعد مرور ثانيتين (2000 مللي ثانية) من فتح صندوق الكنز", "en": "Advances once after a 2-second (2000ms) delay following the treasure box click"}]}, {"id": 9, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "إذا كان اللاعب في المستوى الأول وفاز به، فكم عدد الصناديق التي ستظهر في المستوى الثاني؟", "q_en": "If the player wins Level 1, how many boxes will be generated in Level 2?", "code": "currentLevel += 1;\ngenerateBoxes(currentLevel + 1);", "correct": 1, "options": [{"ar": "يظهر صندوقان فقط لأن الدالة تعيد رسم نفس العدد الافتراضي في كل مرة", "en": "Generates two boxes only because the function redraws the default count each time"}, {"ar": "تظهر 3 صناديق لأن currentLevel يصبح 2 وتستدعى الدالة بالقيمة 2 + 1", "en": "Generates 3 boxes because currentLevel becomes 2 and the function gets 2 + 1"}, {"ar": "تظهر 4 صناديق لأن عدد الصناديق يتضاعف بالضرب في اثنين مع كل مستوى داخل صفحة المتصفح", "en": "Generates 4 boxes because the box count doubles by multiplying by two each level"}, {"ar": "تظهر 5 صناديق لأن قيمة المتغير تزيد بمقدار ثلاثة في كل جولة فوز", "en": "Generates 5 boxes because the variable increases by three on every winning round"}]}, {"id": 10, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "ماذا يحدث عند تنفيذ هذين السطرين بعد اختيار صندوق فارغ؟", "q_en": "What happens when these two lines execute after picking an empty box?", "code": "life--;\nhearts.innerText = '💖'.repeat(life);", "correct": 2, "options": [{"ar": "يزيد عدد القلوب قلباً واحداً وتضاف صورة قلب جديدة بجانب القلوب الحالية", "en": "Increases the heart count by one and appends a new heart icon beside existing ones"}, {"ar": "يبقى عدد القلوب ثابتاً على الشاشة ولكن يتغير لونها إلى اللون الرمادي", "en": "Keeps the number of hearts unchanged on screen but turns their color into gray"}, {"ar": "ينقص المتغير life بمقدار 1 ويعاد عرض القلوب المتبقية فقط على الشاشة", "en": "Decrements the life variable by 1 and updates the screen with remaining hearts"}, {"ar": "يتحول المتغير life إلى صفر فوراً وتنتهي اللعبة من أول محاولة خاطئة", "en": "Sets the life variable to zero right away and ends the game on the first mistake"}]}, {"id": 11, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "كيف يتم إظهار زر إعادة اللعب (reset) بعد أن كان مخفياً في بداية اللعبة؟", "q_en": "How is the reset button made visible again after being hidden at game start?", "code": "// At start: reset.style.display = 'none';\n// On Game Over:\nreset.style.display = '';", "correct": 0, "options": [{"ar": "بتعيين خاصية display إلى نص فارغ لإلغاء الإخفاء واستعادة ظهوره الافتراضي", "en": "By setting style.display to an empty string to clear 'none' and restore visibility"}, {"ar": "بحذف عنصر الزر القديم وإنشاء عنصر زر جديد تماماً داخل حاوية الصناديق داخل صفحة المتصفح", "en": "By deleting the old button node and creating a brand new button inside boxes inside the browser DOM"}, {"ar": "بتغيير قيمة الخاصية disabled من true إلى false دون تعديل تنسيق CSS", "en": "By flipping the disabled property from true to false without changing CSS styles"}, {"ar": "باستدعاء دالة showModal الخاصة بالنوافذ المنبثقة لإظهار الزر وسط الشاشة", "en": "By calling the native showModal dialog method to pop the button in screen center"}]}, {"id": 12, "topic_ar": "لعبة صندوق الكنز", "topic_en": "Treasure Box Game", "q_ar": "ماذا يحدث عند الضغط على زر reset بعد ظهور رسالة Game Over؟", "q_en": "What happens when the player clicks the reset button after Game Over?", "code": "reset.addEventListener('click', () => {\n    currentLevel = 1;\n    gameOver = false;\n    statusText.innerText = '';\n    reset.style.display = 'none';\n    generateBoxes(2);\n});", "correct": 3, "options": [{"ar": "يكمل اللاعب من نفس المستوى الذي خسر فيه مع إعطائه قلباً واحداً إضافياً داخل صفحة المتصفح", "en": "Resumes from the exact level where the player lost while granting one extra heart"}, {"ar": "يمسح رسالة الخسارة فقط ويترك الصناديق المفتوحة كما هي بدون إعادة توليدها", "en": "Clears only the loss status text while leaving opened boxes untouched on screen"}, {"ar": "يغلق صفحة اللعبة الحالية ويعيد توجيه المتصفح إلى القائمة الرئيسية للموقع", "en": "Closes the current game page and redirects the browser to the main website menu"}, {"ar": "يعيد المستوى للأول ويفرغ نص الحالة ويخفي زر الإعادة ويولد صندوقين جديدين", "en": "Resets to level 1, clears status text, hides reset button, and generates 2 boxes"}]}, {"id": 13, "topic_ar": "مشروع الآلة الحاسبة", "topic_en": "Calculator Project", "q_ar": "ما الفرق بين استخدام query\u0053electorAll واستخدام getElementBy\u0049d في الكود التالي؟", "q_en": "What is the difference between query\u0053electorAll and getElementBy\u0049d here?", "code": "const input = document.getElementBy\u0049d('input');\nconst buttons = document.query\u0053electorAll('button');", "correct": 1, "options": [{"ar": "الأولى تجلب زراً واحداً فقط بالمعرف بينما الثانية تجلب جميع حقول الإدخال", "en": "The first fetches only a single button by ID while the second fetches all inputs"}, {"ar": "تجلب query\u0053electorAll قائمة بكل عناصر button بينما تجلب الأخرى عنصراً واحداً بمعرفه", "en": "query\u0053electorAll returns a NodeList of all buttons while the other gets one by ID"}, {"ar": "كلتا الدالتين ترجعان مصفوفة نصوص تحتوي على القيم المكتوبة داخل الأزرار فقط داخل صفحة المتصفح", "en": "Both methods return an array of strings containing only the button text labels inside the browser DOM"}, {"ar": "لا يمكن استخدام حلقة forEach مع نتيجة query\u0053electorAll إطلاقاً في جافاسكريبت", "en": "The forEach loop method can never be used with query\u0053electorAll results in JS"}]}, {"id": 14, "topic_ar": "مشروع الآلة الحاسبة", "topic_en": "Calculator Project", "q_ar": "ماذا يرجع التعبير البرمجي التالي إذا كانت قيمة حقل الإدخال هي '25+8'؟", "q_en": "What does the following expression return if input.value is '25+8'?", "code": "const last = input.value.slice(-1);", "correct": 2, "options": [{"ar": "يرجع الحرف الأول من اليسار وهو الرقم '2' كنص مفرد من بداية السلسلة", "en": "Returns the very first character from the left which is '2' as a single string"}, {"ar": "يرجع النص '25+' كاملاً بعد حذف الحرف الأخير من نهاية شاشة الإدخال", "en": "Returns the substring '25+' after removing the final character from the input"}, {"ar": "يرجع الحرف الأخير من النص وهو '8' لفحصه قبل إضافة عملية جديدة", "en": "Returns the last character of the string which is '8' to inspect before appending"}, {"ar": "يرجع القيمة الرقمية -1 دائماً لأن المعامل الممرر للدالة slice رقم سالب", "en": "Always returns the numeric value -1 because the argument passed to slice is negative"}]}, {"id": 15, "topic_ar": "مشروع الآلة الحاسبة", "topic_en": "Calculator Project", "q_ar": "ما المشكلة التي يمنعها هذا الشرط البرمجي في الآلة الحاسبة؟", "q_en": "What specific issue does this conditional check prevent in the calculator?", "code": "else if (operators.includes(last) && operators.includes(x.innerText)) {\n    return;\n}", "correct": 0, "options": [{"ar": "يمنع إدخال علامتي عملية حسابية متتاليتين مثل كتابة */ أو ++ خلف بعضهما", "en": "Prevents entering two consecutive math operators like */ or ++ right after each other"}, {"ar": "يمنع المستخدم من كتابة رقم يتكون من أكثر من منزلتين عشريتين في الشاشة", "en": "Prevents the user from typing a number with more than two digits on the screen inside the browser DOM"}, {"ar": "يمنع إجراء أكثر من عملية حسابية واحدة داخل المعادلة الرياضية بالكامل", "en": "Prevents performing more than one single math operation in the entire expression"}, {"ar": "يمنع الضغط على زر المسح 'c' إذا كانت شاشة الآلة الحاسبة تحتوي على عملية", "en": "Prevents clicking the clear button 'c' if the calculator screen contains an operator"}]}, {"id": 16, "topic_ar": "مشروع الآلة الحاسبة", "topic_en": "Calculator Project", "q_ar": "ماذا يحدث عند الضغط على الزر الذي يحتوي على الحرف 'c'؟", "q_en": "What happens when the button containing 'c' is clicked?", "code": "if (x.innerText == 'c') {\n    input.value = '';\n}", "correct": 3, "options": [{"ar": "يمسح آخر رقم أو رمز فقط من يمين الشاشة مع الإبقاء على باقي المعادلة", "en": "Deletes only the last digit or symbol from the right while keeping the rest"}, {"ar": "يحسب النتيجة النهائية للمعادلة الحالية ويخزنها في ذاكرة المتصفح الدائمة", "en": "Computes the final result of the current formula and saves it in localStorage"}, {"ar": "يضع الرقم صفر '0' كقيمة نصية ثابتة لا يمكن الكتابة بعدها في الحقل", "en": "Sets a locked string '0' inside the input field that cannot be typed after"}, {"ar": "يمسح محتوى شاشة الإدخال بالكامل عبر تعيين نص فارغ داخل خاصية value", "en": "Clears the entire input screen content by assigning an empty string to value"}]}, {"id": 17, "topic_ar": "مشروع الآلة الحاسبة", "topic_en": "Calculator Project", "q_ar": "ماذا يفعل المعامل += في السطر التالي عند الضغط على زر رقم أو عملية مسموحة؟", "q_en": "What does the += operator do when clicking a number or valid operator button?", "code": "else if (x.innerText != '=') {\n    input.value += x.innerText;\n}", "correct": 1, "options": [{"ar": "يمسح النص الموجود في حقل الإدخال ويضع نص الزر الجديد مكانه فقط", "en": "Overwrites the existing input field text with only the new button text"}, {"ar": "يلحق نص الزر المضغوط بنهاية النص الموجود حالياً داخل شاشة الآلة الحاسبة", "en": "Appends the clicked button's text to the end of the current input screen string"}, {"ar": "يجمع الأرقام رياضياً في نفس اللحظة قبل أن يضغط المستخدم على علامة يساوي داخل صفحة المتصفح", "en": "Adds the numbers mathematically right away before the user clicks equals"}, {"ar": "يقارن بين طول النص الحالي وطول نص الزر ويرجع قيمة منطقية true أو false", "en": "Compares the length of the current text with the button text and returns boolean"}]}, {"id": 18, "topic_ar": "مشروع الآلة الحاسبة", "topic_en": "Calculator Project", "q_ar": "كيف يتم حساب النتيجة عند الضغط على زر '=' في كود الآلة الحاسبة؟", "q_en": "How is the result calculated when clicking '=' in the calculator code?", "code": "else if (x.innerText == '=') {\n    input.value = eval(input.value);\n}", "correct": 2, "options": [{"ar": "يتم تقسيم النص إلى مصفوفة أرقام ثم جمعها يدوياً باستخدام حلقة تكرارية", "en": "Splits the text into a number array and sums them manually using a for-loop"}, {"ar": "يتم إرسال المعادلة إلى خادم خارجي لحسابها وإرجاع النتيجة عبر الإنترنت", "en": "Sends the formula to an external server to compute and return over network"}, {"ar": "تقوم الدالة eval بتحليل النص كعملية رياضية وتنفيذها ووضع الناتج في الحقل", "en": "The eval function parses and executes the string math expression and sets the result"}, {"ar": "تقوم الدالة eval بتحويل الأرقام إلى حروف أبجدية وعرضها بترتيب عكسي داخل صفحة المتصفح", "en": "The eval function converts digits into alphabetical letters in reverse order inside the browser DOM"}]}, {"id": 19, "topic_ar": "مشروع الآلة الحاسبة", "topic_en": "Calculator Project", "q_ar": "لماذا استُخدمت خاصية input.value بدلاً من input.innerText مع شاشة الآلة الحاسبة؟", "q_en": "Why is input.value used instead of input.innerText for the calculator screen?", "code": "const input = document.getElementBy\u0049d('input');\nconst last = input.value.slice(-1);", "correct": 0, "options": [{"ar": "لأن عناصر حقول الإدخال input تخزن محتواها النصي داخل الخاصية value", "en": "Because HTML input form elements store their current text inside the value property"}, {"ar": "لأن الخاصية value تقبل العمليات الحسابية فقط وترفض الحروف النصية تلقائياً", "en": "Because the value property accepts only math operations and rejects letters automatically"}, {"ar": "لأن استخدام innerText يؤدي إلى حذف عنصر الإدخال من شجرة الصفحة فوراً", "en": "Because using innerText deletes the input element node from the DOM tree immediately"}, {"ar": "لأن الدالة slice(-1) لا تعمل في لغة جافاسكريبت إلا مع الخاصية value فقط", "en": "Because the slice(-1) method in JavaScript only works on the value property"}]}, {"id": 20, "topic_ar": "مشروع الآلة الحاسبة", "topic_en": "Calculator Project", "q_ar": "ماذا يحدث إذا كانت الشاشة تحتوي على '12*' وضغط المستخدم على زر '-'؟", "q_en": "What happens if input.value is '12*' and the user clicks the '-' button?", "code": "const last = input.value.slice(-1);\nif (x.innerText == 'c') {\n    input.value = '';\n} else if (operators.includes(last) && operators.includes(x.innerText)) {\n    return;\n}", "correct": 3, "options": [{"ar": "يتم استبدال علامة الضرب '*' بعلامة الطرح '-' ليصبح النص '12-' في الشاشة داخل صفحة المتصفح", "en": "Replaces the multiplication sign '*' with '-' so the screen text becomes '12-'"}, {"ar": "تتم إضافة علامة الطرح ليصبح النص '12*-' لأن العلامتين مختلفتان عن بعضهما", "en": "Appends the minus sign to become '12*-' because the two operators are different"}, {"ar": "يتم تصفير شاشة الإدخال بالكامل لأن الكود يعتبر ذلك خطأ في الكتابة", "en": "Clears the entire input screen because the script treats it as a syntax error"}, {"ar": "يتحقق شرط وجود العلامتين في مصفوفة operators فيتوقف الكود بـ return ولا يضيفها", "en": "Both '*' and '-' are in operators, so return executes and nothing is appended"}]}, {"id": 21, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "ما القيمة الابتدائية لمصفوفة اللوحة gameBoard عند بدء تشغيل لعبة X-O؟", "q_en": "What is the initial value of the gameBoard array when the X-O game starts?", "code": "let gameBoard = Array(9).fill('');", "correct": 1, "options": [{"ar": "مصفوفة تحتوي على الأرقام من 0 إلى 8 لترقيم المربعات التسعة على الشاشة", "en": "An array containing numbers 0 through 8 to label the nine squares on screen"}, {"ar": "مصفوفة طولها 9 عناصر وتحتوي جميع خاناتها على نص فارغ '' في البداية", "en": "An array of length 9 where every element is initialized to an empty string ''"}, {"ar": "مصفوفة فارغة طولها صفر وتتم زيادة حجمها تدريجياً مع كل نقرة للاعب", "en": "An empty array of length zero that grows dynamically with each player click inside the browser DOM"}, {"ar": "مصفوفة تحتوي على تسعة عناصر تحمل القيمة النصية 'X' بشكل افتراضي", "en": "An array of nine elements all pre-populated with the string 'X' by default"}]}, {"id": 22, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "كيف ترتبط كل خلية div في الشاشة بمكانها الصحيح داخل المصفوفة gameBoard؟", "q_en": "How is each div cell on screen linked to its exact position in gameBoard?", "code": "gameBoard.forEach((item, index) => {\n    let box = document.createElement('div');\n    box.classList.add('cell');\n    box.innerText = item;\n    box.addEventListener('click', () => play(index));\n    board.appendChild(box);\n});", "correct": 2, "options": [{"ar": "عبر البحث عن النص المكتوب داخل المربع ومقارنته باسم اللاعب الحالي", "en": "By searching for the text inside the box and comparing it with current player"}, {"ar": "عبر توليد رقم عشوائي بين 0 و 8 عند النقر على أي مربع داخل اللوحة", "en": "By generating a random number between 0 and 8 whenever any board cell is clicked"}, {"ar": "عبر تمرير معامل الفهرس index من حلقة forEach إلى الدالة play(index) عند النقر", "en": "By passing the index parameter from forEach into play(index) on click"}, {"ar": "عبر قراءة إحداثيات موقع المربع بالبكسل من ملف التنسيق الخارجي CSS داخل صفحة المتصفح", "en": "By reading the pixel coordinate offsets of the cell from the external CSS file"}]}, {"id": 23, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "ماذا يحدث إذا نقر اللاعب على مربع يحتوي مسبقاً على 'X' أو 'O'؟", "q_en": "What happens if a player clicks a cell that already contains 'X' or 'O'?", "code": "function play(index) {\n    if (gameOver) return;\n    if (gameBoard[index] != '') return;\n    gameBoard[index] = turn;", "correct": 0, "options": [{"ar": "يتحقق الشرط الثاني لأن الخانة ليست فارغة فيتوقف التنفيذ بـ return دون تغيير", "en": "The second condition triggers since the cell is not empty and returns early"}, {"ar": "يتم استبدال الرمز القديم برمز اللاعب الجديد وينتقل الدور للاعب الآخر داخل صفحة المتصفح", "en": "Overwrites the old mark with the new player's symbol and switches the turn"}, {"ar": "يتم مسح الرمز الموجود في المربع ليعود فارغاً دون تغيير دور اللاعب الحالي", "en": "Clears the existing symbol in the cell back to empty without switching turns"}, {"ar": "تنتهي المباراة فوراً وتظهر رسالة خطأ تطلب إعادة تشغيل الجولة من البداية", "en": "Ends the match right away and displays an error message asking to restart"}]}, {"id": 24, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "ماذا يمثل النمط [0, 4, 8] داخل مصفوفة احتمالات الفوز winpatterns؟", "q_en": "What does the pattern [0, 4, 8] represent inside the winpatterns array?", "code": "let winpatterns = [\n    [0, 1, 2], [3, 4, 5], [6, 7, 8],\n    [0, 3, 6], [1, 4, 7], [2, 5, 8],\n    [0, 4, 8], [2, 4, 6]\n];", "correct": 3, "options": [{"ar": "يمثل الصف الأفقي الأول في أعلى لوحة اللعب المكونة من تسعة مربعات داخل صفحة المتصفح", "en": "Represents the top horizontal row across the nine-cell game board grid"}, {"ar": "يمثل العمود الرأسي الأوسط الذي يمر بمنتصف لوحة اللعب من الأعلى للأسفل", "en": "Represents the middle vertical column running top-to-bottom through the board"}, {"ar": "يمثل الصف الأفقي الأخير في أسفل لوحة اللعب من اليسار إلى اليمين", "en": "Represents the bottom horizontal row across the game board from left to right"}, {"ar": "يمثل القطر الرئيسي الممتد من الزاوية العلوية اليسرى إلى السفلية اليمنى", "en": "Represents the main diagonal from the top-left corner to bottom-right corner"}]}, {"id": 25, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "كيف تعمل الدالة winpatterns.some() في التحقق من وجود فائز؟", "q_en": "How does winpatterns.some() work when checking for a winner?", "code": "return winpatterns.some(x => {\n    let [a, b, c] = x;\n    return gameBoard[a] == gameBoard[b] && gameBoard[a] == gameBoard[c] && gameBoard[a] != '';\n});", "correct": 1, "options": [{"ar": "ترجع true فقط إذا امتلأت جميع أنماط الفوز الثمانية بنفس الرمز في وقت واحد", "en": "Returns true only if all eight win patterns are filled with the same symbol at once"}, {"ar": "تمر على أنماط الفوز وترجع true فور تحقق شرط التطابق في أي نمط واحد منها", "en": "Iterates over patterns and returns true as soon as any single pattern matches"}, {"ar": "تقوم بترتيب عناصر مصفوفة winpatterns تنازلياً حسب عدد الخانات الممتلئة", "en": "Sorts the winpatterns array in descending order based on filled cell counts"}, {"ar": "تحذف الأنماط غير المكتملة من المصفوفة وترجع عدد الأنماط المتبقية كرقم", "en": "Removes incomplete patterns from the array and returns the remaining count"}]}, {"id": 26, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "إذا كانت قيمة x هي [2, 4, 6]، فما قيم المتغيرات بعد تنفيذ السطر التالي؟", "q_en": "If x is [2, 4, 6], what are the values of a, b, and c after this line?", "code": "let [a, b, c] = x;", "correct": 2, "options": [{"ar": "تأخذ جميع المتغيرات الثلاثة القيمة الكاملة للمصفوفة [2, 4, 6] بالتساوي", "en": "All three variables a, b, and c receive the full array [2, 4, 6] equally"}, {"ar": "يأخذ المتغير a مجموع الأرقام 12 بينما تصبح قيمة b و c غير معرفة undefined", "en": "Variable a gets the sum 12 while b and c become undefined in memory"}, {"ar": "تصبح قيمة a تساوي 2 وقيمة b تساوي 4 وقيمة c تساوي 6 عبر تفكيك المصفوفة", "en": "Variable a becomes 2, b becomes 4, and c becomes 6 via array destructuring"}, {"ar": "تصبح قيمة a تساوي 0 وقيمة b تساوي 1 وقيمة c تساوي 2 حسب ترتيب الفهارس أثناء التنفيذ", "en": "Variable a becomes 0, b becomes 1, and c becomes 2 based on index positions during runtime"}]}, {"id": 27, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "ماذا سيحدث لو حذفنا الشرط gameBoard[a] != '' من دالة checkWinning()؟", "q_en": "What would happen if we removed gameBoard[a] != '' from checkWinning()?", "code": "// Suppose we only wrote:\nreturn gameBoard[a] == gameBoard[b] && gameBoard[a] == gameBoard[c];", "correct": 0, "options": [{"ar": "سيعلن الكود عن فوز من أول نقرة لأن الخانات الفارغة '' متساوية ببعضها", "en": "The game would declare a win on the first click because empty strings '' match"}, {"ar": "لن يتمكن أي لاعب من الفوز أبداً وستنتهي جميع المباريات بالتعادل الدائم", "en": "No player would ever be able to win and every match would end in a draw inside the browser DOM"}, {"ar": "سيتوقف المتصفح عن رسم المربعات التسعة عند استدعاء دالة createBoxes", "en": "The browser would stop rendering the nine grid cells when createBoxes runs"}, {"ar": "سيتم تبديل دور اللاعبين مرتين متتاليتين في كل نقرة واحدة على اللوحة", "en": "Player turns would flip twice in a row on every single click on the board"}]}, {"id": 28, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "ما معنى التعبير المنطقي !gameBoard.includes('') داخل دالة checkDraw()؟", "q_en": "What does the logical expression !gameBoard.includes('') mean in checkDraw()?", "code": "function checkDraw() {\n    if (!gameBoard.includes('')) {\n        return true;\n    }\n}", "correct": 3, "options": [{"ar": "يتحقق من أن جميع خانات اللوحة التسع لا تزال فارغة تماماً في بداية اللعب داخل صفحة المتصفح", "en": "Checks that all nine cells of the board are still completely empty at start"}, {"ar": "يتحقق من وجود خانة فارغة واحدة على الأقل داخل مصفوفة اللوحة الحالية", "en": "Checks that at least one empty string cell still exists inside gameBoard"}, {"ar": "يمسح جميع النصوص الفارغة من المصفوفة ويقلص حجمها إلى الصفر فوراً", "en": "Deletes all empty strings from the array and shrinks its length to zero"}, {"ar": "يتحقق من عدم وجود أي خانة فارغة في المصفوفة أي أن اللوحة امتلأت بالكامل", "en": "Checks that no empty string exists in gameBoard meaning all cells are full"}]}, {"id": 29, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "لماذا تم وضع فحص checkWinning() قبل فحص checkDraw() داخل دالة play؟", "q_en": "Why is checkWinning() placed before checkDraw() inside the play() function?", "code": "if (checkWinning()) {\n    gameOver = true;\n    statusText.innerText = 'Player ' + turn + ' is the winner';\n    return;\n}\nif (checkDraw()) {\n    gameOver = true;\n    statusText.innerText = 'Draw';\n    return;\n}", "correct": 1, "options": [{"ar": "لأن دالة التعادل تقوم بمسح مصفوفة اللوحة تلقائياً عند استدعائها في الكود", "en": "Because the draw check function automatically wipes the board array when called"}, {"ar": "حتى يُحتسب الفوز إذا تحققت حركة الفوز في الخانة التاسعة والأخيرة من اللوحة", "en": "So a winning move made on the 9th final cell is counted as a win, not a draw"}, {"ar": "لأن لغة جافاسكريبت تشترط ترتيب الدوال أبجدياً عند كتابة جمل if المتتالية داخل صفحة المتصفح", "en": "Because JavaScript requires functions to be called in alphabetical order in if blocks"}, {"ar": "لمنع تبديل الدور من X إلى O خلال النقرات الثلاث الأولى من بداية المباراة", "en": "To prevent switching turns from X to O during the first three clicks of a match"}]}, {"id": 30, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "ما النص الذي يظهر في statusText عندما يفوز اللاعب O بالمباراة؟", "q_en": "What text is assigned to statusText when player O wins the match?", "code": "if (checkWinning()) {\n    gameOver = true;\n    statusText.innerText = 'Player ' + turn + ' is the winner';\n    return;\n}", "correct": 2, "options": [{"ar": "تظهر الرسالة 'Player Turn = O' مع استمرار إمكانية النقر على باقي المربعات", "en": "Displays 'Player Turn = O' while still allowing clicks on remaining cells"}, {"ar": "تظهر الرسالة 'Player X is the winner' لأن المتغير يتغير قبل جملة الطباعة", "en": "Displays 'Player X is the winner' because turn flips before printing"}, {"ar": "تظهر الرسالة 'Player O is the winner' وتتوقف اللعبة عبر تعيين gameOver بـ true", "en": "Displays 'Player O is the winner' and halts play by setting gameOver = true"}, {"ar": "تظهر الرسالة 'Draw' باللون الأحمر ويتم تفريغ جميع المربعات تلقائياً داخل صفحة المتصفح", "en": "Displays 'Draw' in red color and empties all nine board cells automatically inside the browser DOM"}]}, {"id": 31, "topic_ar": "لعبة إكس أو (X-O)", "topic_en": "Tic-Tac-Toe (X-O) Game", "q_ar": "ماذا يحدث لو نسي المبرمج كتابة gameOver = false داخل حدث زر resetBtn؟", "q_en": "What would happen if the developer forgot gameOver = false inside resetBtn?", "code": "resetBtn.addEventListener('click', function () {\n    gameBoard = Array(9).fill('');\n    createBoxes();\n    // Suppose gameOver = false; was omitted!\n    turn = 'X';\n});", "correct": 0, "options": [{"ar": "ستُفرغ اللوحة ظاهرياً لكن لن يستجيب أي مربع للنقر لأن gameOver ستظل true", "en": "The board clears visually, but no cell responds to clicks since gameOver stays true"}, {"ar": "ستعمل اللعبة بشكل طبيعي تماماً لأن دالة createBoxes تصفر المتغير تلقائياً", "en": "The game works normally because createBoxes resets gameOver automatically inside the browser DOM"}, {"ar": "سيبدأ اللعب في الجولة الجديدة بحرف O بدلاً من حرف X في النقرة الأولى", "en": "The new round starts with player O instead of player X on the very first click"}, {"ar": "ستختفي لوحة المربعات التسعة من الشاشة نهائياً بمجرد الضغط على زر الإعادة", "en": "The nine-cell board disappears completely from the screen once reset is clicked"}]}, {"id": 32, "topic_ar": "تطبيق قائمة المهام", "topic_en": "To-Do List App", "q_ar": "ما وظيفة السطرين التاليين عند الضغط على زر الإضافة addBtn في قائمة المهام؟", "q_en": "What do these two lines do when clicking addBtn in the To-Do List app?", "code": "let li = document.createElement('li');\nli.classList.add('items');", "correct": 2, "options": [{"ar": "يبحثان عن جميع عناصر li في الصفحة ويحذفان الكلاس items منها دفعة واحدة", "en": "Finds all existing li elements on the page and removes the items class from them"}, {"ar": "ينشئان قائمة كاملة ul جديدة ويضيفان إليها عنصراً فرعياً يحمل الاسم items", "en": "Creates a brand new ul list container and appends a child named items inside it"}, {"ar": "ينشئان عنصر قائمة li جديداً ويضيفان إليه الكلاس التنسيقي items", "en": "Creates a new li list item element and attaches the CSS class 'items' to it"}, {"ar": "يحولان نص حقل الإدخال إلى مصفوفة عناصر مفصولة ويحفظانها في الكلاس items", "en": "Converts the input field text into a split array and stores it in class items"}]}, {"id": 33, "topic_ar": "تطبيق قائمة المهام", "topic_en": "To-Do List App", "q_ar": "ماذا يفعل التعبير ${taskNumber} و ${i} داخل نص الـ Template Literal التالي؟", "q_en": "What do ${taskNumber} and ${i} do inside the following template literal?", "code": "li.innerHTML = `\n    <div>\n        ${taskNumber}) <span class='task'>${i}</span>\n    </div>\n`;", "correct": 1, "options": [{"ar": "يطبعان الكلمتين taskNumber و i حرفياً على الشاشة مع رمز الدولار والأقواس", "en": "Prints the literal words taskNumber and i on screen along with dollar signs"}, {"ar": "يدمجان القيمة الحالية لرقم المهمة ونص المهمة المدخل مباشرة داخل كود HTML", "en": "Interpolates the current task number and input task string directly into HTML"}, {"ar": "يقومان بإنشاء متغيرين جديدين فارغين داخل ملف التنسيق الخارجي للصفحة داخل صفحة المتصفح", "en": "Declares two new empty variables inside the external stylesheet of the page inside the browser DOM"}, {"ar": "يمنعان المستخدم من إدخال أي أرقام أو رموز خاصة داخل نص المهمة الجديدة", "en": "Prevents the user from entering any digits or special symbols in the new task"}]}, {"id": 34, "topic_ar": "تطبيق قائمة المهام", "topic_en": "To-Do List App", "q_ar": "لماذا نبحث عن زر الحذف باستخدام li.query\u0053elector('.deleteBtn') بدلاً من document؟", "q_en": "Why do we query '.deleteBtn' on 'li' instead of on 'document'?", "code": "const deleteBtn = li.query\u0053elector('.deleteBtn');\ndeleteBtn.addEventListener('click', function () {\n    li.remove();\n    taskNumber--;\n});", "correct": 3, "options": [{"ar": "لأن الكائن document لا يدعم البحث باستخدام اسم الكلاس الذي يبدأ بنقطة", "en": "Because the document object does not support querying by dot class selectors"}, {"ar": "لأن البحث عبر document سيؤدي إلى حذف جميع المهام الموجودة في القائمة معاً", "en": "Because querying via document would delete every single task in the list at once"}, {"ar": "لأن عنصر li لم يتم إنشاؤه بعد في الذاكرة عند تنفيذ هذا السطر البرمجي", "en": "Because the li element has not been created in memory yet when this line runs"}, {"ar": "لربط الحدث بزر الحذف الخاص بهذه المهمة الجديدة تحديداً دون غيرها", "en": "To bind the click listener specifically to the delete button inside this new li"}]}, {"id": 35, "topic_ar": "تطبيق قائمة المهام", "topic_en": "To-Do List App", "q_ar": "ماذا تفعل الدالة li.remove() عند الضغط على زر الحذف؟", "q_en": "What does the li.remove() method do when the delete button is clicked?", "code": "deleteBtn.addEventListener('click', function () {\n    li.remove();\n    taskNumber--;\n});", "correct": 0, "options": [{"ar": "تزيل عنصر المهمة li بالكامل مع أزراره من شجرة عناصر الصفحة (DOM)", "en": "Removes the entire li task element along with its buttons from the DOM tree"}, {"ar": "تمسح النص المكتوب داخل المهمة فقط وتترك الأزرار الفارغة ظاهرة في القائمة", "en": "Clears only the text inside the task while leaving empty buttons in the list"}, {"ar": "تزيل الكلاس items من عنصر المهمة مع بقاء العنصر ظاهراً داخل القائمة", "en": "Removes the 'items' CSS class from the task while keeping the element visible"}, {"ar": "تنقل عنصر المهمة إلى سلة محذوفات مؤقتة أسفل الصفحة لإعادته لاحقاً", "en": "Moves the task element into a temporary recycle bin section at page bottom"}]}, {"id": 36, "topic_ar": "تطبيق قائمة المهام", "topic_en": "To-Do List App", "q_ar": "ماذا ترجع الدالة task.classList.contains('done') في الكود التالي؟", "q_en": "What does task.classList.contains('done') return in the following code?", "code": "if (task.classList.contains('done')) {\n    task.classList.remove('done');\n} else {\n    task.classList.add('done');\n}", "correct": 2, "options": [{"ar": "ترجع نص المهمة المكتوب إذا كان يحتوي على الكلمة الإنجليزية done بداخله", "en": "Returns the task text string if it contains the English word 'done' inside it"}, {"ar": "ترجع عدد العناصر التي تمتلك الكلاس done داخل قائمة المهام بالكامل", "en": "Returns the total count of elements that have the 'done' class across the list"}, {"ar": "ترجع true إذا كان العنصر task يمتلك الكلاس done حالياً وإلا ترجع false", "en": "Returns true if the task element currently has the 'done' class, otherwise false"}, {"ar": "تقوم بحذف الكلاس done تلقائياً بمجرد فحصه داخل جملة الشرط if داخل صفحة المتصفح", "en": "Automatically deletes the 'done' class as soon as it is checked inside the if inside the browser DOM"}]}, {"id": 37, "topic_ar": "تطبيق قائمة المهام", "topic_en": "To-Do List App", "q_ar": "على أي عنصر يتم تطبيق أو إزالة الكلاس 'done' عند الضغط على زر الإنجاز ✅؟", "q_en": "Which exact element gets the 'done' class added or removed on clicking ✅?", "code": "const doneBtn = li.query\u0053elector('.doneBtn');\nconst task = li.query\u0053elector('.task');\ndoneBtn.addEventListener('click', function() {\n    if (task.classList.contains('done')) {\n        task.classList.remove('done');\n    } else {\n        task.classList.add('done');\n    }\n});", "correct": 1, "options": [{"ar": "على عنصر القائمة الأب tasksList الذي يضم جميع المهام الموجودة بالصفحة", "en": "On the parent tasksList container element that holds all tasks on the page"}, {"ar": "على عنصر span الداخلي الذي يحمل الكلاس task ويحتوي على نص المهمة", "en": "On the inner span element that has the 'task' class and holds the task text"}, {"ar": "على زر الحذف deleteBtn لتعطيله ومنع حذف المهمة بعد إنجازها", "en": "On the deleteBtn element to disable it and prevent deleting a finished task inside the browser DOM"}, {"ar": "على حقل الإدخال الرئيسي input الموجود في أعلى صفحة قائمة المهام", "en": "On the main text input field located at the top of the To-Do list page"}]}, {"id": 38, "topic_ar": "تطبيق قائمة المهام", "topic_en": "To-Do List App", "q_ar": "لماذا يتم تنفيذ السطر taskNumber++ في نهاية حدث زر الإضافة addBtn؟", "q_en": "Why is taskNumber++ executed at the end of the addBtn click listener?", "code": "tasksList.appendChild(li);\ntaskNumber++;", "correct": 3, "options": [{"ar": "لزيادة حجم الخط الخاص بالمهمة المضافة بمقدار بكسل واحد في كل مرة داخل صفحة المتصفح", "en": "To increase the font size of the newly added task by one pixel each time inside the browser DOM"}, {"ar": "لتكرار إضافة نفس المهمة مرة ثانية داخل القائمة بشكل تلقائي", "en": "To duplicate and append the exact same task a second time into the list"}, {"ar": "لمسح النص المكتوب داخل حقل الإدخال input بعد إضافة المهمة للقائمة", "en": "To clear the typed text inside the input field after appending the task"}, {"ar": "لزيادة عداد الترقيم بمقدار 1 حتى تأخذ المهمة القادمة الرقم التالي", "en": "To increment the counter by 1 so the next added task gets the next number"}]}, {"id": 39, "topic_ar": "تطبيق قائمة المهام", "topic_en": "To-Do List App", "q_ar": "كيف يمسح زر deleteAllBtn جميع المهام الموجودة في القائمة دفعة واحدة؟", "q_en": "How does deleteAllBtn clear all tasks from the list at once?", "code": "deleteAllBtn.addEventListener('click', function() {\n    tasksList.innerHTML = '';\n    taskNumber = 1;\n});", "correct": 0, "options": [{"ar": "بتفريغ محتوى HTML الداخلي لحاوية tasksList وإعادة عداد المهام إلى 1", "en": "By setting tasksList.innerHTML to an empty string and resetting taskNumber to 1"}, {"ar": "بإخفاء حاوية tasksList عبر خاصية display:none مع بقاء المهام بداخلها", "en": "By hiding the tasksList container via display:none while keeping items inside inside the browser DOM"}, {"ar": "باستدعاء دالة window.location.reload لإعادة تحميل الصفحة من المتصفح", "en": "By calling window.location.reload to refresh the entire browser document"}, {"ar": "بتحويل لون جميع عناصر المهام إلى اللون الأبيض لكي لا تظهر للمستخدم", "en": "By turning the text color of all task items white so they become invisible"}]}, {"id": 40, "topic_ar": "تطبيق قائمة المهام", "topic_en": "To-Do List App", "q_ar": "ماذا يحدث لحقل الإدخال input بعد الضغط على زر الإضافة addBtn في الكود المعطى؟", "q_en": "What happens to the input field after clicking addBtn in the given code?", "code": "addBtn.addEventListener('click', function() {\n    let i = input.value;\n    let li = document.createElement('li');\n    // ... creates and appends li ...\n    tasksList.appendChild(li);\n    taskNumber++;\n});", "correct": 2, "options": [{"ar": "يتم تفريغ حقل الإدخال تلقائياً لأن قراءة input.value تمسح النص الموجود فيه", "en": "The input field clears automatically because reading input.value erases its text"}, {"ar": "يتم تعطيل حقل الإدخال عن الكتابة حتى يقوم المستخدم بإنجاز المهمة الأولى", "en": "The input field becomes disabled from typing until the user completes task one"}, {"ar": "يبقى النص المكتوب داخل حقل الإدخال كما هو لعدم وجود سطر input.value = ''", "en": "The typed text stays inside the input field since input.value = '' was not added"}, {"ar": "يتحول النص الموجود في حقل الإدخال إلى رقم يمثل عدد المهام الكلي بالقائمة", "en": "The text inside the input field changes into a number showing total list tasks inside the browser DOM"}]}, {"id": 41, "topic_ar": "لعبة تخمين الرقم", "topic_en": "Guess the Number Game", "q_ar": "لماذا تمت إضافة + 1 في نهاية معادلة توليد الرقم العشوائي التالية؟", "q_en": "Why is + 1 added at the end of the following random number formula?", "code": "let rand_number = Math.floor(Math.random() * 100) + 1;", "correct": 1, "options": [{"ar": "لتحويل النتيجة من نص برمجي إلى رقم صحيح يقبل القسمة على اثنين", "en": "To convert the output from a string into an even integer divisible by two"}, {"ar": "لتحريك مدى الأرقام من (0 إلى 99) ليصبح من (1 إلى 100) شاملاً المائة", "en": "To shift the integer range from (0–99) up to (1–100) inclusive of 100"}, {"ar": "لمنع الدالة Math.random من توليد نفس الرقم مرتين متتاليتين في اللعبة", "en": "To prevent Math.random from generating the exact same number twice in a row"}, {"ar": "لزيادة عدد محاولات اللاعب الافتراضية بمقدار محاولة واحدة عند البدء", "en": "To increase the player's default tries count by one extra attempt at start"}]}, {"id": 42, "topic_ar": "لعبة تخمين الرقم", "topic_en": "Guess the Number Game", "q_ar": "ما وظيفة الدالة wrongGuess() عند استدعائها بعد تخمين خاطئ؟", "q_en": "What does the wrongGuess() function do when called after an incorrect guess?", "code": "function wrongGuess() {\n    tries--;\n    triesText.innerText = `You have ${tries} tries`;\n    if (tries == 0) {\n        checkBtn.disabled = true;\n        resetBtn.style.display = 'inline';\n        statusText.innerText = '🎃  Game Over  🎃';\n        return;\n    }\n    statusText.style.display = '';\n    statusText.style.backgroundColor = 'yellow';\n    statusText.style.color = 'black';\n}", "correct": 3, "options": [{"ar": "تزيد عدد المحاولات بمقدار واحد وتغير لون الخلفية إلى الأخضر دائماً داخل صفحة المتصفح", "en": "Increments tries by one and changes the status background color to green always"}, {"ar": "تمسح الرقم السري القديم وتولد رقماً عشوائياً جديداً بعد كل محاولة خاطئة", "en": "Deletes the old secret number and generates a new random number on every miss"}, {"ar": "تخفي نص المحاولات المتبقية وتغلق المتصفح فور أول تخمين غير صحيح", "en": "Hides the remaining tries text and closes the browser on the first wrong guess"}, {"ar": "تنقص المحاولات وتحدث النص وتنهي اللعبة عند الصفر أو تلون الرسالة بالأصفر", "en": "Decrements tries, updates text, ends game at 0, or styles statusText yellow"}]}, {"id": 43, "topic_ar": "لعبة تخمين الرقم", "topic_en": "Guess the Number Game", "q_ar": "في حدث النقر على checkBtn، لماذا يظهر النص 'Guess a lower number ⬇' رغم أن wrongGuess تغير statusText عند انتهاء المحاولات؟", "q_en": "In checkBtn, why does 'Guess a lower number ⬇' overwrite 'Game Over' on the last try?", "code": "if (i > rand_number) {\n    wrongGuess();\n    statusText.innerText = 'Guess a lower number ⬇';\n}", "correct": 0, "options": [{"ar": "لأن سطر تعيين 'Guess a lower number' يُنفذ بعد انتهاء استدعاء دالة wrongGuess", "en": "Because setting 'Guess a lower number' runs right after wrongGuess() returns"}, {"ar": "لأن الدالة wrongGuess لا يتم استدعاؤها أصلاً عندما يكون الرقم المدخل كبيراً داخل صفحة المتصفح", "en": "Because wrongGuess() is never called at all when the entered number is larger"}, {"ar": "لأن خاصية innerText لا تقبل الرموز التعبيرية مثل رمز اليقطينة في الجملة", "en": "Because the innerText property rejects emoji characters like the pumpkin icon"}, {"ar": "لأن المتغير tries لا يصل إلى القيمة صفر أبداً مهما تكررت المحاولات الخاطئة", "en": "Because the tries counter variable never reaches zero no matter how many misses"}]}, {"id": 44, "topic_ar": "لعبة تخمين الرقم", "topic_en": "Guess the Number Game", "q_ar": "متى يدخل تنفيذ الكود إلى فرع else الأخير داخل حدث النقر على checkBtn؟", "q_en": "When does execution enter the final else branch inside the checkBtn listener?", "code": "let i = Number(input.value);\nif (i > rand_number) {\n    // lower\n} else if (i < rand_number) {\n    // higher\n} else {\n    checkBtn.disabled = true;\n    resetBtn.style.display = 'inline';\n    statusText.innerText = '🏆  You Win  🏆';\n}", "correct": 2, "options": [{"ar": "عندما يكون الرقم المدخل أكبر بكثير من الرقم السري العشوائي في اللعبة", "en": "When the user's entered number is strictly greater than the secret random number"}, {"ar": "عندما يكون الرقم المدخل أصغر من الصفر أو أكبر من مائة في حقل الإدخال", "en": "When the entered number is less than zero or greater than one hundred in input"}, {"ar": "عندما يتساوى الرقم المدخل i مع الرقم العشوائي rand_number فيفوز اللاعب", "en": "When the entered number i equals rand_number meaning the player guessed right"}, {"ar": "عندما ينقر اللاعب على زر إعادة الضبط resetBtn قبل انتهاء المحاولات العشر", "en": "When the player clicks the resetBtn button before finishing all ten attempts"}]}, {"id": 45, "topic_ar": "لعبة تخمين الرقم", "topic_en": "Guess the Number Game", "q_ar": "ماذا يفعل السطر checkBtn.disabled = true عند الفوز أو الخسارة؟", "q_en": "What does checkBtn.disabled = true do upon winning or losing the game?", "code": "checkBtn.disabled = true;\nresetBtn.style.display = 'inline';", "correct": 1, "options": [{"ar": "يخفي زر الفحص من الشاشة تماماً ويحذف مساحته من تصميم الصفحة", "en": "Hides the check button completely from the screen and removes its layout space"}, {"ar": "يعطل زر الفحص عن الاستجابة لأي نقرات جديدة حتى يتم الضغط على إعادة اللعب", "en": "Disables the check button from responding to clicks until resetBtn is clicked"}, {"ar": "يمسح النص المكتوب على زر الفحص ويحوله إلى زر فارغ بدون عنوان داخل صفحة المتصفح", "en": "Erases the label text on the check button turning it into a blank button"}, {"ar": "ينقل التركيز التلقائي للماوس إلى حقل الإدخال لكتابة رقم جديد فوراً", "en": "Moves automatic keyboard focus into the input field to type a new number"}]}, {"id": 46, "topic_ar": "لعبة تخمين الرقم", "topic_en": "Guess the Number Game", "q_ar": "ما الذي يقوم به زر إعادة اللعب resetBtn عند الضغط عليه في لعبة التخمين؟", "q_en": "What does resetBtn do when clicked in the Guess the Number game?", "code": "resetBtn.addEventListener('click', function () {\n    input.value = '';\n    statusText.innerText = '';\n    triesText.innerText = '';\n    resetBtn.style.display = 'none';\n    checkBtn.disabled = false;\n    tries = 10;\n    statusText.style.display = 'none';\n});", "correct": 3, "options": [{"ar": "يعيد تحميل الصفحة بالكامل ويظهر أزرار اختيار المستوى السهل والصعب فقط", "en": "Reloads the full browser page and displays only the easy and hard buttons"}, {"ar": "يضاعف عدد المحاولات ليصبح 20 محاولة مع ترك رسالة الفوز ظاهرة باللون الأخضر", "en": "Doubles the tries count to 20 attempts while keeping the green win banner visible"}, {"ar": "يحذف حقل الإدخال وزر الفحص من الشاشة ويمنع بدء جولة لعب جديدة", "en": "Deletes the input field and check button from screen and blocks new rounds"}, {"ar": "يفرغ الحقل والنصوص ويخفي نفسه ويفعل زر الفحص ويعيد المحاولات إلى 10", "en": "Clears input and texts, hides itself, enables checkBtn, and resets tries to 10"}]}, {"id": 47, "topic_ar": "لعبة تخمين الرقم", "topic_en": "Guess the Number Game", "q_ar": "لماذا يتم إخفاء easyBtn و hardBtn عند النقر على زر المستوى السهل easyBtn؟", "q_en": "Why are easyBtn and hardBtn hidden when the player clicks easyBtn?", "code": "easyBtn.addEventListener('click', function () {\n    tries = 10;\n    easyBtn.style.display = 'none';\n    hardBtn.style.display = 'none';\n    input.style.display = '';\n    checkBtn.style.display = '';\n    triesText.innerText = `You have 10 tries`;\n});", "correct": 0, "options": [{"ar": "لإنهاء مرحلة اختيار الصعوبة وبدء اللعب بإظهار حقل الإدخال وزر الفحص", "en": "To finish difficulty selection and start play by showing input and checkBtn"}, {"ar": "لأن اللاعب استنفد جميع محاولاته العشر قبل أن تبدأ جولة التخمين داخل صفحة المتصفح", "en": "Because the player exhausted all ten tries before the guessing round began"}, {"ar": "لمنع ظهور نص عدد المحاولات المتبقية triesText على شاشة المتصفح", "en": "To prevent the remaining triesText element from appearing on the browser screen"}, {"ar": "لتوليد عشرة أرقام عشوائية مختلفة في نفس الوقت داخل ذاكرة اللعبة", "en": "To generate ten different random numbers simultaneously in game memory"}]}, {"id": 48, "topic_ar": "لعبة تخمين الرقم", "topic_en": "Guess the Number Game", "q_ar": "ما القيمة التي ترجعها Number(input.value) إذا ضغط اللاعب على checkBtn والحقل فارغ ''؟", "q_en": "What value does Number(input.value) return if input.value is an empty string ''?", "code": "let i = Number(input.value);", "correct": 2, "options": [{"ar": "ترجع القيمة الرقمية 100 وتعتبر اللاعب فائزاً بالجولة بشكل تلقائي", "en": "Returns the numeric value 100 and counts the player as an automatic winner"}, {"ar": "تتسبب في توقف المتصفح عن العمل وظهور شاشة خطأ برمجي حمراء فوراً", "en": "Causes the browser script to crash and displays a fatal red syntax error screen"}, {"ar": "ترجع الرقم 0 وهو أصغر من الرقم العشوائي فيطلب الكود تخمين رقم أكبر", "en": "Returns the number 0 which is less than rand_number, prompting a higher guess"}, {"ar": "ترجع النص 'empty' وتقوم بزيادة عدد المحاولات المتبقية بمقدار خمس محاولات", "en": "Returns the string 'empty' and increases remaining tries by five extra attempts"}]}, {"id": 49, "topic_ar": "دمج النصوص والـ DOM", "topic_en": "Text Merger & DOM Basics", "q_ar": "ماذا يعرض العنصر text عند كتابة 'Hello' في الحقل الأول و 'World' في الثاني ثم الضغط على الزر؟", "q_en": "What does 'text' display when typing 'Hello' and 'World' then clicking button?", "code": "button.addEventListener('click', function () {\n    let i1 = input1.value;\n    let i2 = input2.value;\n    text.innerText = i1 + ' ' + i2;\n});", "correct": 1, "options": [{"ar": "يعرض الكلمتين ملتصقتين 'HelloWorld' بدون أي مسافة فاصلة بينهما على الشاشة", "en": "Displays the two words joined tightly as 'HelloWorld' with no space between"}, {"ar": "يعرض النص المدمج 'Hello World' بفضل وجود مسافة ' ' بين المتغيرين", "en": "Displays 'Hello World' separated by a single space thanks to + ' ' + between them"}, {"ar": "يمسح الكلمتين من حقلي الإدخال ويعرض عدد حروفهما الكلي كرقم صحيح", "en": "Clears both words from the input fields and displays their total character count inside the browser DOM"}, {"ar": "يعرض قيمة الحقل الثاني فقط لأنها تستبدل قيمة الحقل الأول أثناء التنفيذ", "en": "Displays only the second input value because it overwrites the first value"}]}, {"id": 50, "topic_ar": "دمج النصوص والـ DOM", "topic_en": "Text Merger & DOM Basics", "q_ar": "في المشاريع الستة السابقة، متى يتم تنفيذ الدالة الممررة داخل addEventListener('click', ...)؟", "q_en": "Across all six projects, when does the callback inside addEventListener('click', ...) run?", "code": "button.addEventListener('click', function () {\n    // callback code\n});", "correct": 0, "options": [{"ar": "في كل مرة ينقر فيها المستخدم بالماوس على العنصر المرتبط بالحدث", "en": "Every time the user clicks on the target DOM element attached to the listener"}, {"ar": "مرة واحدة فقط تلقائياً لحظة فتح ملف الصفحة قبل أن ينقر المستخدم", "en": "Only once automatically the instant the page loads before any user interaction"}, {"ar": "عندما يقوم المستخدم بتحريك مؤشر الماوس بعيداً عن نافذة المتصفح الحالية", "en": "Whenever the user moves the mouse cursor outside the current browser window"}, {"ar": "كل خمس ثوانٍ بشكل دوري مستمر طوال فترة بقاء الصفحة مفتوحة بالمتصفح", "en": "Every five seconds on a repeating timer while the page stays open in browser"}]}];
+      const LETTERS = ['A', 'B', 'C', 'D'];
+      const STORAGE_KEY = 'js_dom_bilingual_50_exam_locked_v1';
+
+      // Exam State
+      let state = {
+        started: false,
+        completed: false,
+        studentName: '',
+        currentIndex: 0,       // 0 to 49 (Strictly monotonic forward!)
+        selectedOption: null,  // Temporary selection for the current active question
+        lockedAnswers: {},     // { qid: chosenIndex }
+        completedAt: null,
+        soundEnabled: true,
+        reviewFilter: 'all'
+      };
+
+      // Load persisted state from localStorage (prevents retaking or going back!)
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              state.started = !!parsed.started;
+              state.completed = !!parsed.completed;
+              state.studentName = parsed.studentName || '';
+              state.currentIndex = typeof parsed.currentIndex === 'number' ? parsed.currentIndex : 0;
+              state.lockedAnswers = parsed.lockedAnswers || {};
+              state.completedAt = parsed.completedAt || null;
+            }
+          }
+        } catch (e) {}
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            started: state.started,
+            completed: state.completed,
+            studentName: state.studentName,
+            currentIndex: state.currentIndex,
+            lockedAnswers: state.lockedAnswers,
+            completedAt: state.completedAt
+          }));
+        } catch (e) {}
+      }
+
+      // Synthesized Web Audio Effects (Neutral during exam, celebratory at finish)
+      let audioCtx = null;
+      function playTone(type) {
+        if (!state.soundEnabled) return;
+        try {
+          if (!audioCtx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) audioCtx = new AC();
+          }
+          if (!audioCtx) return;
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+          const now = audioCtx.currentTime;
+
+          if (type === 'select') {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(480, now);
+            gain.gain.setValueAtTime(0.06, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.07);
+          } else if (type === 'lock') {
+            // Neutral futuristic lock chime (same sound regardless of right/wrong so nothing is given away!)
+            [440, 587.33].forEach((freq, i) => {
+              const osc = audioCtx.createOscillator();
+              const gain = audioCtx.createGain();
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(freq, now + i * 0.07);
+              gain.gain.setValueAtTime(0.11, now + i * 0.07);
+              gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.16);
+              osc.connect(gain);
+              gain.connect(audioCtx.destination);
+              osc.start(now + i * 0.07);
+              osc.stop(now + i * 0.07 + 0.18);
+            });
+          } else if (type === 'finish') {
+            [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+              const osc = audioCtx.createOscillator();
+              const gain = audioCtx.createGain();
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(freq, now + i * 0.08);
+              gain.gain.setValueAtTime(0.15, now + i * 0.08);
+              gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.3);
+              osc.connect(gain);
+              gain.connect(audioCtx.destination);
+              osc.start(now + i * 0.08);
+              osc.stop(now + i * 0.08 + 0.32);
+            });
+          }
+        } catch (e) {}
+      }
+
+      // Confetti Engine for Final Screen
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      let animId = null;
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      function launchConfetti(count = 85) {
+        const colors = ['#6366f1', '#a855f7', '#ec4899', '#10b981', '#f59e0b', '#38bdf8'];
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: window.innerWidth * (0.2 + Math.random() * 0.6),
+            y: window.innerHeight * 0.3,
+            vx: (Math.random() - 0.5) * 15,
+            vy: -Math.random() * 13 - 4,
+            size: Math.random() * 8 + 5,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rot: Math.random() * 360,
+            vRot: (Math.random() - 0.5) * 12,
+            life: 1
+          });
+        }
+        if (!animId) animateConfetti();
+      }
+
+      function animateConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.34;
+          p.rot += p.vRot;
+          p.life -= 0.011;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.globalAlpha = Math.max(0, p.life);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+          ctx.restore();
+        });
+        particles = particles.filter((p) => p.life > 0 && p.y < canvas.height + 40);
+        if (particles.length > 0) {
+          animId = requestAnimationFrame(animateConfetti);
+        } else {
+          animId = null;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      function showLockToast(qNum) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-extrabold text-xs sm:text-sm shadow-2xl animate-float-toast flex items-center gap-2';
+        toast.innerHTML = `<span>🔒</span> <span>تم قفل وحفظ إجابة السؤال ${qNum} • Q${qNum} Locked</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 1100);
+      }
+
+      // Update Header Progress
+      function updateHeaderProgress() {
+        const answeredCount = Object.keys(state.lockedAnswers).length;
+        const pct = Math.round((answeredCount / QUESTIONS.length) * 100);
+        document.getElementById('header-progress-text').textContent = `${answeredCount} / ${QUESTIONS.length}`;
+        document.getElementById('top-progress-bar').style.width = `${pct}%`;
+        document.getElementById('top-progress-pct').textContent = `${pct}%`;
+
+        const namePill = document.getElementById('header-student-pill');
+        if (state.studentName) {
+          document.getElementById('header-student-name').textContent = state.studentName;
+          namePill.classList.remove('hidden');
+          namePill.classList.add('flex');
+        }
+      }
+
+      // Render Visual Trail of Locked Past Questions (Non-clickable!)
+      function renderLockedTrail() {
+        const bar = document.getElementById('locked-trail-bar');
+        bar.innerHTML = '';
+        QUESTIONS.forEach((q, idx) => {
+          const pill = document.createElement('div');
+          if (idx < state.currentIndex) {
+            pill.className = 'px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-[11px] font-mono text-slate-400 flex items-center gap-1 shrink-0 opacity-75 cursor-not-allowed';
+            pill.title = 'هذا السؤال مقفل ولا يمكن الرجوع إليه • Locked Question';
+            pill.innerHTML = `<span>🔒</span><span>Q${q.id}</span>`;
+          } else if (idx === state.currentIndex) {
+            pill.className = 'px-3 py-1 rounded-lg bg-indigo-600 text-white border border-indigo-400 text-[11px] font-mono font-extrabold flex items-center gap-1 shrink-0 shadow-md';
+            pill.innerHTML = `<span>📍</span><span>Q${q.id}</span>`;
+          } else {
+            pill.className = 'px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-600 shrink-0';
+            pill.textContent = `Q${q.id}`;
+          }
+          bar.appendChild(pill);
+        });
+        // Auto scroll active pill into view
+        const activePill = bar.children[state.currentIndex];
+        if (activePill) {
+          activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }
+
+      // Render Active Question
+      function renderCurrentQuestion() {
+        updateHeaderProgress();
+        if (state.completed || state.currentIndex >= QUESTIONS.length) {
+          state.completed = true;
+          saveState();
+          renderResultsScreen();
+          return;
+        }
+
+        const q = QUESTIONS[state.currentIndex];
+        state.selectedOption = null;
+
+        const card = document.getElementById('question-card');
+        card.classList.remove('animate-card-enter');
+        void card.offsetWidth;
+        card.classList.add('animate-card-enter');
+
+        document.getElementById('q-current-num').textContent = q.id;
+        document.getElementById('q-current-num-en').textContent = q.id;
+        document.getElementById('q-topic-badge').textContent = `${q.topic_ar} • ${q.topic_en}`;
+
+        document.getElementById('q-text-ar').textContent = q.q_ar;
+        document.getElementById('q-text-en').textContent = q.q_en;
+
+        // Separate Code Block
+        const codeContainer = document.getElementById('q-code-container');
+        const codeContent = document.getElementById('q-code-content');
+        if (q.code && q.code.trim()) {
+          codeContainer.classList.remove('hidden');
+          codeContent.textContent = q.code;
+        } else {
+          codeContainer.classList.add('hidden');
+        }
+
+        // Render 4 Balanced Bilingual Options
+        const optsContainer = document.getElementById('options-container');
+        optsContainer.innerHTML = '';
+
+        q.options.forEach((optObj, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'option-card w-full text-right p-4 sm:p-5 rounded-2xl bg-slate-950/90 hover:bg-slate-800/80 border-2 border-slate-800 hover:border-indigo-500/60 flex items-center gap-4 group';
+
+          btn.innerHTML = `
+            <span class="letter-pill w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 text-indigo-300 font-mono font-extrabold text-sm flex items-center justify-center shrink-0 transition-colors">
+              ${LETTERS[idx]}
+            </span>
+            <div class="flex-1 space-y-1.5">
+              <div class="text-sm sm:text-base font-bold text-slate-100 group-hover:text-white leading-snug" dir="rtl"></div>
+              <div class="text-xs sm:text-sm font-medium text-slate-400 group-hover:text-indigo-200 font-en leading-snug" dir="ltr"></div>
+            </div>
+          `;
+          btn.querySelector('div > div:nth-child(1)').textContent = optObj.ar;
+          btn.querySelector('div > div:nth-child(2)').textContent = optObj.en;
+
+          btn.addEventListener('click', () => {
+            state.selectedOption = idx;
+            playTone('select');
+            optsContainer.querySelectorAll('.option-card').forEach((el, i) => {
+              if (i === idx) el.classList.add('selected-choice');
+              else el.classList.remove('selected-choice');
+            });
+            document.getElementById('btn-confirm-answer').disabled = false;
+          });
+
+          optsContainer.appendChild(btn);
+        });
+
+        const confirmBtn = document.getElementById('btn-confirm-answer');
+        confirmBtn.disabled = true;
+        const confirmLabel = document.getElementById('confirm-btn-label');
+        if (state.currentIndex === QUESTIONS.length - 1) {
+          confirmLabel.textContent = 'إنهاء الاختبار وإظهار النتيجة النهائية • Finish & View Final Score 🏆';
+        } else {
+          confirmLabel.textContent = 'تأكيد الإجابة والسؤال التالي • Lock Answer & Next 🔒';
+        }
+
+        renderLockedTrail();
+      }
+
+      // Lock Current Answer & Advance Forward (Irreversible!)
+      document.getElementById('btn-confirm-answer').addEventListener('click', () => {
+        if (state.selectedOption === null) return;
+        const q = QUESTIONS[state.currentIndex];
+        if (!q) return;
+
+        // Lock answer without revealing if it's right or wrong
+        state.lockedAnswers[q.id] = state.selectedOption;
+        showLockToast(q.id);
+
+        if (state.currentIndex + 1 >= QUESTIONS.length) {
+          state.currentIndex = QUESTIONS.length;
+          state.completed = true;
+          state.completedAt = new Date().toLocaleString('ar-EG');
+          saveState();
+          playTone('finish');
+          launchConfetti(100);
+          renderResultsScreen();
+        } else {
+          state.currentIndex += 1;
+          saveState();
+          playTone('lock');
+          renderCurrentQuestion();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+
+      // Render Final Locked Results & Full 50-Question Review
+      function renderResultsScreen() {
+        document.getElementById('welcome-screen').classList.add('hidden');
+        document.getElementById('exam-stage-screen').classList.add('hidden');
+        const resScreen = document.getElementById('results-screen');
+        resScreen.classList.remove('hidden');
+
+        updateHeaderProgress();
+
+        let correctCount = 0;
+        const topicStats = {};
+
+        QUESTIONS.forEach((q) => {
+          const tKey = `${q.topic_ar} • ${q.topic_en}`;
+          if (!topicStats[tKey]) topicStats[tKey] = { correct: 0, total: 0 };
+          topicStats[tKey].total += 1;
+
+          const userChoice = state.lockedAnswers[q.id];
+          if (userChoice === q.correct) {
+            correctCount += 1;
+            topicStats[tKey].correct += 1;
+          }
+        });
+
+        const wrongCount = QUESTIONS.length - correctCount;
+        const pct = Math.round((correctCount / QUESTIONS.length) * 100);
+
+        const studentLabel = state.studentName ? `الطالب/ة: ${state.studentName} • ` : '';
+        document.getElementById('result-student-meta').textContent = `${studentLabel}تاريخ الاعتماد: ${state.completedAt || 'الآن'} • حالة المحاولة: مكتملة ومقفلة 🔒`;
+
+        document.getElementById('res-score-fraction').textContent = `${correctCount} / ${QUESTIONS.length}`;
+        document.getElementById('res-score-pct').textContent = `${pct}%`;
+        document.getElementById('res-correct-count').textContent = correctCount;
+        document.getElementById('res-wrong-count').textContent = wrongCount;
+
+        // Topic Breakdown Cards
+        const breakdownGrid = document.getElementById('topic-breakdown-grid');
+        breakdownGrid.innerHTML = '';
+        Object.keys(topicStats).forEach((tName) => {
+          const st = topicStats[tName];
+          const tPct = Math.round((st.correct / st.total) * 100);
+          const card = document.createElement('div');
+          card.className = 'p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between gap-2';
+          card.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-slate-200">${tName}</span>
+              <span class="text-xs font-mono font-extrabold text-indigo-300">${st.correct}/${st.total} (${tPct}%)</span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 rounded-full" style="width: ${tPct}%"></div>
+            </div>
+          `;
+          breakdownGrid.appendChild(card);
+        });
+
+        renderReviewCards();
+      }
+
+      function renderReviewCards() {
+        const list = document.getElementById('review-list-container');
+        list.innerHTML = '';
+
+        QUESTIONS.forEach((q) => {
+          const userChoice = state.lockedAnswers[q.id];
+          const isCorrect = userChoice === q.correct;
+
+          if (state.reviewFilter === 'correct' && !isCorrect) return;
+          if (state.reviewFilter === 'wrong' && isCorrect) return;
+
+          const card = document.createElement('article');
+          card.className = `p-5 sm:p-6 rounded-3xl bg-slate-900 border-2 transition ${
+            isCorrect ? 'border-emerald-500/35' : 'border-rose-500/35'
+          }`;
+
+          const badgeHtml = isCorrect
+            ? '<span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold">✅ إجابة صحيحة • Correct</span>'
+            : '<span class="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-extrabold">❌ إجابة خاطئة • Incorrect</span>';
+
+          const escapedCode = (q.code || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          const codeHtml = q.code ? `
+            <div class="my-4 rounded-2xl overflow-hidden border border-slate-800 bg-[#0b1120]" dir="ltr">
+              <div class="bg-slate-950 px-3.5 py-1.5 border-b border-slate-800 text-[11px] font-mono text-slate-400">script.js</div>
+              <pre class="p-4 font-mono text-xs sm:text-sm text-emerald-300 overflow-x-auto"><code>${escapedCode}</code></pre>
+            </div>
+          ` : '';
+
+          const optsHtml = q.options.map((optObj, oIdx) => {
+            const isRightOpt = oIdx === q.correct;
+            const isUserOpt = oIdx === userChoice;
+
+            let styleCls = 'bg-slate-950/60 border-slate-800 text-slate-400 opacity-75';
+            let pillCls = 'bg-slate-900 text-slate-400 border-slate-700';
+            let tagText = '';
+
+            if (isRightOpt) {
+              styleCls = 'bg-emerald-500/15 border-emerald-500 text-emerald-100 font-bold';
+              pillCls = 'bg-emerald-500 text-slate-950 border-emerald-400';
+              tagText = isUserOpt
+                ? '<span class="text-xs font-extrabold text-emerald-300 shrink-0">✓ إجابتك الصحيحة • Your Correct Choice</span>'
+                : '<span class="text-xs font-extrabold text-emerald-300 shrink-0">✓ الإجابة الصحيحة • Correct Answer</span>';
+            } else if (isUserOpt && !isRightOpt) {
+              styleCls = 'bg-rose-500/15 border-rose-500 text-rose-100';
+              pillCls = 'bg-rose-500 text-white border-rose-400';
+              tagText = '<span class="text-xs font-extrabold text-rose-300 shrink-0">✗ إجابتك المختارة • Your Choice</span>';
+            }
+
+            const escAr = optObj.ar.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const escEn = optObj.en.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            return `
+              <div class="p-3.5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${styleCls}">
+                <div class="flex items-start gap-3">
+                  <span class="w-8 h-8 rounded-xl border font-mono font-extrabold text-xs flex items-center justify-center shrink-0 ${pillCls}">
+                    ${LETTERS[oIdx]}
+                  </span>
+                  <div class="space-y-1">
+                    <div class="text-xs sm:text-sm" dir="rtl">${escAr}</div>
+                    <div class="text-xs text-slate-300 font-en" dir="ltr">${escEn}</div>
+                  </div>
+                </div>
+                ${tagText}
+              </div>
+            `;
+          }).join('');
+
+          const escQAr = q.q_ar.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          const escQEn = q.q_en.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+          card.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-300 font-mono font-extrabold text-xs">Q${q.id}</span>
+                <span class="text-xs font-bold text-slate-400">${q.topic_ar} • ${q.topic_en}</span>
+              </div>
+              ${badgeHtml}
+            </div>
+            <div class="space-y-1.5 mb-3">
+              <h4 class="text-sm sm:text-base font-extrabold text-white" dir="rtl">${escQAr}</h4>
+              <p class="text-xs sm:text-sm font-semibold text-indigo-200 font-en" dir="ltr">${escQEn}</p>
+            </div>
+            ${codeHtml}
+            <div class="space-y-2.5 mt-3">
+              ${optsHtml}
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      }
+
+      // Filter buttons on Final Review Screen
+      document.querySelectorAll('.rev-filter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.reviewFilter = btn.getAttribute('data-rfilter');
+          document.querySelectorAll('.rev-filter-btn').forEach((b) => {
+            b.className = 'rev-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition';
+          });
+          btn.className = 'rev-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white transition';
+          renderReviewCards();
+        });
+      });
+
+      // Start Exam Button
+      document.getElementById('btn-start-exam').addEventListener('click', () => {
+        const nameVal = document.getElementById('student-name-input').value.trim();
+        state.studentName = nameVal;
+        state.started = true;
+        saveState();
+        playTone('lock');
+        document.getElementById('welcome-screen').classList.add('hidden');
+        document.getElementById('exam-stage-screen').classList.remove('hidden');
+        renderCurrentQuestion();
+      });
+
+      // Sound Toggle
+      document.getElementById('btn-sound-toggle').addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        document.getElementById('btn-sound-toggle').textContent = state.soundEnabled ? '🔊' : '🔇';
+      });
+
+      // Boot App & Enforce Lock State
+      loadState();
+      updateHeaderProgress();
+
+      if (state.completed) {
+        renderResultsScreen();
+      } else if (state.started) {
+        document.getElementById('welcome-screen').classList.add('hidden');
+        document.getElementById('exam-stage-screen').classList.remove('hidden');
+        renderCurrentQuestion();
+      }
+    })();
+  </script>
+</body>
+</html>
